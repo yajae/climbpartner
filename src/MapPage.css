@@ -1,0 +1,70 @@
+.map-page {
+    display: flex;
+    height: 100vh;
+  }
+  
+  #other-info {
+    width: 30%; /* 其他資料顯示在左邊，佔整個寬度的 30% */
+    height: 100vh;
+    background-color: rgba(255, 255, 255, 0.9);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+  }
+  
+  #main-info {
+    width: 70%; /* 地圖和圖表顯示在右邊，佔整個寬度的 70% */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+  
+  #map {
+    width: 100%; /* 地圖顯示在 main-info 上方，佔 main-info 的 100% 寬度 */
+    height: 70%; /* 地圖顯示在 main-info 上方，佔 main-info 的 70% 高度 */
+    position: relative;
+  }
+  
+  #chart-container {
+    width: 100%; /* 圖表容器佔 main-info 的 100% 寬度 */
+    height: 30%; /* 圖表容器佔 main-info 的 30% 高度 */
+    text-align: center;
+    position: relative;
+  }
+  
+  #chart-canvas {
+    width: 100%;
+    height: 100%;
+  }
+  
+  #walking-time, #marker1-info {
+    background-color: white;
+    padding: 5px;
+    border-radius: 3px;
+    z-index: 10;
+    margin-bottom: 10px; /* 將元素之間的距離增加 */
+  }
+  
+  .add-button {
+    padding: 5px;
+    border-radius: 3px;
+    background-color: #4CAF50;
+    color: rgb(4, 2, 2);
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  /* 表單容器的樣式 */
+.form-container {
+    display: flex; /* 使用 Flexbox 佈局 */
+    gap: 20px; /* 控制元素之間的間距 */
+}
+
+/* 表單元素的樣式 */
+.form-container > div {
+    flex: 1; /* 使每個子元素佔據相同的寬度 */
+    display: flex;
+    flex-direction: column; /* 確保 label 和 input 垂直排列 */
+}
