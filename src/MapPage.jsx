@@ -29,7 +29,7 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await fetch('http://localhost:3000/check-login', {
+        const response = await fetch('http://35.76.14.198/api/check-login', {
           method: 'GET',
           credentials: 'include'
         });
@@ -135,7 +135,7 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
   useEffect(() => {
     if (map && isAuthenticated) {
       fetchInitialMarkers(userId, routeId);
-      socketRef.current = io('http://localhost:3000', {
+      socketRef.current = io('http://35.76.14.198/', {
         withCredentials: true,
       });
       socketRef.current.emit('join-room', room);
@@ -180,7 +180,7 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
 
   const fetchInitialMarkers = async (userId, routeId) => {
     try {
-      const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
+      const response = await fetch(`http://35.76.14.198/api/markers/latest/${userId}/${routeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
