@@ -11,8 +11,6 @@ export default defineConfig({
     rollupOptions: {
       external: ['https'], // 从客户端打包中排除 https 模块
       
-    },
-    outDir: 'dist',
-    assetsDir: 'assets',
+    }
   }
 });
