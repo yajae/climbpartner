@@ -7,7 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-mapboxgl.accessToken = 'your_mapbox_access_token';
+mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
 
 const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
   const mapContainer = useRef(null);
@@ -29,7 +29,11 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        const response = await fetch('http://35.76.14.198/api/check-login', {
+        // const response = await fetch('http://localhost:3000/check-login', {
+        //   method: 'GET',
+        //   credentials: 'include'
+        // });
+        const response = await fetch('/check-login', {
           method: 'GET',
           credentials: 'include'
         });
@@ -135,7 +139,7 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
   useEffect(() => {
     if (map && isAuthenticated) {
       fetchInitialMarkers(userId, routeId);
-      socketRef.current = io('http://35.76.14.198/', {
+      socketRef.current = io('', {
         withCredentials: true,
       });
       socketRef.current.emit('join-room', room);
@@ -180,7 +184,14 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
 
   const fetchInitialMarkers = async (userId, routeId) => {
     try {
-      const response = await fetch(`http://35.76.14.198/api/markers/latest/${userId}/${routeId}`, {
+      // const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+      //   credentials: 'include'
+      // });
+      const response = await fetch(`/markers/latest/${userId}/${routeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'

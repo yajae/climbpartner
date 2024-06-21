@@ -16,14 +16,14 @@ app.use(express.json());
 app.use(cookieParser());
 
 const corsOptions = {
-    origin: '*',
+    origin: 'http://localhost:5173',
     credentials: true
 };
 app.use(cors(corsOptions));
 
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: 'http://localhost:5173',
         methods: ['GET', 'POST'],
         credentials: true
     }
@@ -211,7 +211,9 @@ app.get('/markers/latest/:userId/:routeId', async (req, res) => {
 
 
 app.use(express.static(join(__dirname, 'public')));
-
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
 server.listen(3000, () => {
     console.log(`Server is running on http://localhost:3000`);
 });
