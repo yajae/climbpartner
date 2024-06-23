@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useId, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import Chart from 'chart.js/auto';
 import * as turf from '@turf/turf';
@@ -7,9 +7,9 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
+mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg2MDRvdmsxYnF6MmtzZGxrd2gzcWczIn0.IGocoVPwJFYXIDp6Qutytw';
 
-const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
+const MapPage = ({ isAuthenticated, setAuthenticated }) => {
   const mapContainer = useRef(null);
   const chartContainer = useRef(null);
   const [map, setMap] = useState(null);
@@ -17,26 +17,28 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
   const [chart, setChart] = useState(null);
   const socketRef = useRef(null);
   const location = useLocation();
+
+const { route,userId } = location.state || {};
+console.log('select route',route)
+const [routes, setRoutes]= useState(route);
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
-  const userIdFromParams = queryParams.get('userId');
   const routeId = queryParams.get('routeId') || 1;
-  const userIdFromState = location.state?.userId;
-  const userId = userIdFromState || userIdFromParams;
-  const room = `${userId}-${routeId}`;
+console.log('userId',userId)
+  const room = `1-1`;
 
   // 检查用户是否已登录
   useEffect(() => {
     const checkLoginStatus = async () => {
       try {
-        // const response = await fetch('http://localhost:3000/check-login', {
-        //   method: 'GET',
-        //   credentials: 'include'
-        // });
-        const response = await fetch('/check-login', {
+        const response = await fetch('http://localhost:3000/check-login', {
           method: 'GET',
           credentials: 'include'
         });
+        // const response = await fetch('/check-login', {
+        //   method: 'GET',
+        //   credentials: 'include'
+        // });
         const data = await response.json();
         if (!data.success) {
           navigate('/auth');
@@ -73,7 +75,7 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
           mapInstance.on('sourcedata', async (e) => {
             if (e.sourceId === 'mapbox-dem' && e.isSourceLoaded) {
               console.log('Terrain data loaded');
-              await new Promise(resolve => setTimeout(resolve, 500)); // 延迟 0.5 秒
+              await new Promise(resolve => setTimeout(resolve, 700)); // 延迟 0.5 秒
               setMap(mapInstance);
               mapInstance.on('click', handleClick);
             }
@@ -138,8 +140,9 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
 
   useEffect(() => {
     if (map && isAuthenticated) {
-      fetchInitialMarkers(userId, routeId);
-      socketRef.current = io('', {
+      console.log('before fetch',route)
+      fetchInitialMarkers(userId, route);
+      socketRef.current = io('http://localhost:3000', {
         withCredentials: true,
       });
       socketRef.current.emit('join-room', room);
@@ -182,8 +185,9 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
     }
   }, [map, isAuthenticated]);
 
-  const fetchInitialMarkers = async (userId, routeId) => {
+  const fetchInitialMarkers = async (userId, route) => {
     try {
+      console.log('now is fetching', route.markers.day1)
       // const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
       //   method: 'GET',
       //   headers: {
@@ -191,21 +195,21 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
       //   },
       //   credentials: 'include'
       // });
-      const response = await fetch(`/markers/latest/${userId}/${routeId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-      if (!response.ok) {
-        throw new Error('Failed to fetch markers');
-      }
-      const latestMarkers = await response.json();
-      console.log('Fetched markers:', latestMarkers);
-
-      if (map && latestMarkers.length > 0) {
-        const newMarkers = latestMarkers.map((marker) => {
+      // const response = await fetch(`/markers/latest/${userId}/${routeId}`, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Content-Type': 'application/json'
+      //   },
+      //   credentials: 'include'
+      // });
+      // if (!response.ok) {
+      //   throw new Error('Failed to fetch markers');
+      // }
+      // const latestMarkers = await response.json();
+      // console.log('Fetched markers:', latestMarkers);
+      if (map ) {
+        console.log('now in the if else',route.markers.day1)
+        const newMarkers = route.markers.day1.map((marker) => {
           const marker1 = new mapboxgl.Marker()
             .setLngLat([marker.lng, marker.lat])
             .addTo(map);
@@ -304,7 +308,13 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
       type: 'line',
       data: {
         labels: [],
-        datasets: [{ data: [], fill: false, tension: 0.4 }]
+        datasets: [{
+          data: [],
+          fill: true, // 使圖表下方填充顏色
+          backgroundColor: 'rgba(55, 162, 235, 0.3)', // 填充顏色
+          borderColor: '#37a2eb',
+          tension: 0.4
+        }]
       },
       options: {
         plugins: {
@@ -314,8 +324,13 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
         maintainAspectRatio: false,
         responsive: true,
         scales: {
-          x: { grid: { display: false } },
-          y: { min: 0, grid: { display: false } }
+          x: {
+            grid: { display: true, color: '#e0e0e0' }, // 顯示網格
+          },
+          y: {
+            min: 0,
+            grid: { display: true, color: '#e0e0e0' }, // 顯示網格
+          }
         },
         elements: { point: { radius: 0 } },
         layout: { padding: { top: 6, right: 20, bottom: -10, left: 20 } }
@@ -325,26 +340,26 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
     setChart(newChart);
 
     if (coordinates.length > 2) {
-      console.log('Coordinates length is greater than 2, updating chart');
+  
 
       const chunks = turf.lineChunk({ type: 'LineString', coordinates }, 1).features;
-      console.log('Chunks:', chunks);
+  
 
       const elevations = [
         ...chunks.map((feature) => {
           const elevation = map.queryTerrainElevation(feature.geometry.coordinates[0]);
-          console.log('Elevation for', feature.geometry.coordinates[0], ':', elevation);
+       
           return elevation;
         }),
         map.queryTerrainElevation(chunks[chunks.length - 1].geometry.coordinates[1])
       ];
 
-      console.log('Elevations:', elevations);
+ 
 
       newChart.data.labels = elevations.map(() => '');
       newChart.data.datasets[0].data = elevations;
       newChart.update();
-      console.log('finished update', newChart);
+
     } else {
       newChart.data.labels = [];
       newChart.data.datasets[0].data = [];
@@ -395,6 +410,16 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
     alert(`分享此連結給朋友: ${shareLink}`);
   };
 
+  const handleSaveRoute = () => {
+    const routeName = document.getElementById('route-name').value;
+    const newRoute = {
+      name: routeName,
+      markers: markers.map(marker => marker.getLngLat().toArray()),
+    };
+    setRoutes([route, newRoute]);
+    navigate('/dashboard');
+  };
+
   return (
     <div className="map-page">
       <div id="other-info">
@@ -413,6 +438,7 @@ const MapPage = ({ isAuthenticated,  setAuthenticated}) => {
           <div id="walking-time"></div>
         </div>
         <button onClick={generateShareLink}>生成分享連結</button>
+        <button onClick={handleSaveRoute}>保存路線</button>
       </div>
       <div id="main-info">
         <div ref={mapContainer} id="map"></div>
