@@ -4,29 +4,42 @@ import './ChatWidget.css';
 
 const socket = io('http://localhost:3000');
 
-const ChatWidget = () => {
+const ChatWidget = ({ room }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
-  const [user, setUser] = useState('');
-  const [notes, setNotes] = useState([]);
-  const [note, setNote] = useState('');
+  const [username, setUsername] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredMessages, setFilteredMessages] = useState([]);
 
   useEffect(() => {
+    const storedUsername = localStorage.getItem('userId');
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (username) {
+      socket.emit('join-room', room);
+      fetchMessages();
+    }
+
     socket.on('receiveMessage', (data) => {
-      setMessages((msgs) => [...msgs, data]);
+      setMessages((premsgs) => {
+        const newmsgs = [...(premsgs || []), data];
+        return newmsgs;
+      });
     });
 
     return () => {
       socket.off('receiveMessage');
     };
-  }, []);
+  }, [username, room]);
 
   useEffect(() => {
     if (searchTerm) {
-      const filtered = messages.filter(msg => 
+      const filtered = messages.filter((msg) =>
         msg.message.toLowerCase().includes(searchTerm.toLowerCase())
       );
       setFilteredMessages(filtered);
@@ -35,15 +48,21 @@ const ChatWidget = () => {
     }
   }, [searchTerm, messages]);
 
-  const sendMessage = () => {
-    const data = { user, message, timestamp: new Date() };
-    socket.emit('sendMessage', data);
-    setMessage('');
+  const fetchMessages = async () => {
+    try {
+      const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
+      const data = await response.json();
+      setMessages(Array.isArray(data) ? data : []);  // 确保 data 是一个数组
+      setFilteredMessages(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error fetching messages:', error);
+    }
   };
 
-  const addNote = () => {
-    setNotes([...notes, { note, timestamp: new Date() }]);
-    setNote('');
+  const sendMessage = () => {
+    const data = { user: username, message, timestamp: new Date(), room };
+    socket.emit('sendMessage', data);
+    setMessage('');
   };
 
   const highlightText = (text, highlight) => {
@@ -66,65 +85,40 @@ const ChatWidget = () => {
       {isOpen ? (
         <div className="chat-box">
           <div className="chat-header" onClick={() => setIsOpen(false)}>
-            Chat & Notes
+            Chat
           </div>
           <div className="chat-content">
-            <div className="chat-section">
-              <div className="chat-search">
-                <input
-                  type="text"
-                  placeholder="Search..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              <div className="chat-body">
-                {filteredMessages.map((msg, index) => (
+            <div className="chat-search">
+              <input
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="chat-body">
+              {Array.isArray(filteredMessages) && filteredMessages.length > 0 ? (
+                filteredMessages.map((msg, index) => (
                   <div key={index} className="chat-message">
                     <strong>{msg.user}</strong>: {highlightText(msg.message, searchTerm)}
                   </div>
-                ))}
-              </div>
-              <div className="chat-footer">
-                <input
-                  type="text"
-                  placeholder="Your Name"
-                  value={user}
-                  onChange={(e) => setUser(e.target.value)}
-                  className="chat-input"
-                />
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  className="chat-input"
-                  placeholder="Type a message"
-                />
-                <button onClick={sendMessage} className="chat-send-button">
-                  Send
-                </button>
-              </div>
+                ))
+              ) : (
+                <div>No messages found</div>
+              )}
             </div>
-            <div className="notes-section">
-              <div className="notes-body">
-                {notes.map((n, index) => (
-                  <div key={index} className="note-item">
-                    {n.note}
-                  </div>
-                ))}
-              </div>
-              <div className="notes-footer">
-                <input
-                  type="text"
-                  value={note}
-                  onChange={(e) => setNote(e.target.value)}
-                  className="chat-input"
-                  placeholder="Type a note"
-                />
-                <button onClick={addNote} className="chat-send-button">
-                  Add Note
-                </button>
-              </div>
+            <div className="chat-footer">
+              <div className="user-name">{username}</div>
+              <input
+                type="text"
+                placeholder="Type a message"
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                className="chat-input"
+              />
+              <button onClick={sendMessage} className="chat-send-button">
+                Send
+              </button>
             </div>
           </div>
         </div>
@@ -135,6 +129,7 @@ const ChatWidget = () => {
       )}
     </div>
   );
+
 };
 
 export default ChatWidget;

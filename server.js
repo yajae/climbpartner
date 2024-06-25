@@ -71,16 +71,14 @@ const userPathSchema = new mongoose.Schema({
 
 const UserPathModel = conn.model('UserPath', userPathSchema);
 
-const mapSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    permissions: {
-      type: { type: String, enum: ['private', 'friends', 'public'], required: true },
-      friends: [{ type: Schema.Types.ObjectId, ref: 'User' }]
-    }
+const chatMessageSchema = new mongoose.Schema({
+    user: String,
+    message: String,
+    timestamp: { type: Date, default: Date.now },
+    room: String,
   });
   
-const MapModel = conn.model('Map', mapSchema);
+  const ChatMessage = conn.model('ChatMessage', chatMessageSchema);
 const checkPermissions = async (req, res, next) => {
     const { routeId, userId } = req.query;
 
@@ -210,10 +208,10 @@ app.get('/check-permission/:userId/:routeId', async (req, res) => {
       return res.status(403).json({ hasPermission: false });
     }
 
-    // if (path.permissions.type === 'friends' && !path.permissions.friends.includes(new ObjectId(userId))) {
-    //     console.log('friends false')
-    //   return res.status(403).json({ hasPermission: false });
-    // }
+    if (path.permissions.type === 'friends' && !path.permissions.friends.includes(new ObjectId(userId))) {
+        console.log('friends false')
+      return res.status(403).json({ hasPermission: false });
+    }
 
     res.status(200).json({ hasPermission: true });
   } catch (error) {
@@ -263,12 +261,7 @@ app.post('/update-permissions', async (req, res) => {
 
 io.on('connection', async (socket) => {
     console.log('新客户端已连接:', socket.id);
-//     const cookies = socket.handshake.headers.cookie
-//     ? Object.fromEntries(socket.handshake.headers.cookie.split('; ').map(cookie => cookie.split('=')))
-//     : {};
-// const userId = cookies.userId;
 
-    // 讓客戶端加入指定房間
     socket.on('join-room', (room) => {
             socket.join(room);
             console.log(`客户端 ${socket.id} 已加入房間 ${room}`);
@@ -276,29 +269,18 @@ io.on('connection', async (socket) => {
 
     socket.on('new-marker', async (data) => {
         const { lngLat ,userId,routeId,room} = data;
-       
         const userPath = await UserPathModel.findOne({ userId });
-          
-        // 查找該用戶路徑中指定 routeId 的路徑
         const path = userPath.paths.find(p => p.routeId === parseInt(routeId));
-
-         
         if (path) {
             path.markers.day1.push(lngLat);
-          
-           const result = await userPath.save();  // 保存整個文檔
- 
-        } 
-
+           const result = await userPath.save();  
+        }
         io.to(room).emit('new-marker', { lngLat });
-
     });
 
     socket.on('delete-marker', async (data) => {
-     
         const { room, lngLat } = data;
         try {
-            console.log(room)
                 const result= await UserPathModel.updateOne(
                 { 'paths.markers.day1.lng': lngLat.lng, 'paths.markers.day1.lat': lngLat.lat },
                 { $pull: { 'paths.$.markers.day1': { lng: lngLat.lng, lat: lngLat.lat } } }
@@ -311,8 +293,18 @@ io.on('connection', async (socket) => {
             console.error('刪除標記數據時發生錯誤:', error);
         }
     });
-
-
+     
+    socket.on('sendMessage', async (data) => {
+        try {
+        
+            const chatMessage = new ChatMessage(data);
+            await chatMessage.save();
+            io.emit('receiveMessage', data);
+        } catch (error) {
+            console.error('保存聊天消息时发生错误:', error);
+        }
+    });
+    
     socket.on('disconnect', () => {
         console.log('客户端已断开连接:', socket.id);
     });
@@ -321,15 +313,11 @@ io.on('connection', async (socket) => {
 app.post('/user-path', async (req, res) => {
     try {
         const { userId, paths } = req.body;
-
-        // 檢查用戶是否存在，如果不存在則創建一個新用戶
         let user = await UserModel.findOne({ id: userId });
         if (!user) {
             user = new UserModel({ id: userId, username: `user${userId}`, password: '123' });
             await user.save();
         }
-
-        // 儲存或更新用戶的路徑及標記數據
         const existingUserPath = await UserPathModel.findOne({ userId });
         if (existingUserPath) {
             paths.forEach((path) => {
@@ -359,20 +347,15 @@ app.get('/markers/latest/:userId/:routeId', async (req, res) => {
         const { userId, routeId } = req.params;
         console.log(`開始獲取用戶 ${userId} 的路徑 ${routeId} 的最新標記`);
 
-        // 查找指定 userId 的用戶路徑
+
         const userPath = await UserPathModel.findOne({ 'paths._id': new ObjectId(routeId) });
         if (!userPath) {
             return res.status(404).json({ error: '用戶路徑未找到' });
         }
-
-        // 查找該用戶路徑中指定 routeId 的路徑
         const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
-        // if (!path) {
-        //     return res.status(404).json({ error: '路徑未找到' });
-        // }
-        console.log('fetch old path',path)
-   
-
+        if (!path) {
+            return res.status(404).json({ error: '路徑未找到' });
+        }
         console.log('獲取到的標記:', path.markers);
         res.json(path.markers.day1);
     } catch (error) {
@@ -382,7 +365,19 @@ app.get('/markers/latest/:userId/:routeId', async (req, res) => {
 });
 
 
+// GET messages for a specific room
+app.get('/chat-messages/:room', async (req, res) => {
+    try {
+      const { room } = req.params;
+      const messages = await ChatMessage.find({ room }).sort({ timestamp: 1 });
+      res.json(messages);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  });
+  
 app.use(express.static(join(__dirname, 'public')));
+
 // 如果放在最上面，index.html不會顯示其他api提供的資料
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));

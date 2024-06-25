@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import ChatWidget from './ChatWidget';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg2MDRvdmsxYnF6MmtzZGxrd2gzcWczIn0.IGocoVPwJFYXIDp6Qutytw';
 
@@ -27,19 +27,12 @@ const [routes, setRoutes]= useState(route);
   const queryParams = new URLSearchParams(location.search);
   const routeId = queryParams.get('routeId') || 1;
   const userId = localStorage.getItem('userId');
-  const room = `${userId}-${routeId}`;
+  console.log('useriddddddd',userId)
+  const room = `${routeId}`;
   useEffect(() => {
-    // const checkLoginStatus = async () => {
-    //   console.log('userId',userIdnumber)
-    //   if(!userIdnumber ){
-    //     setuserIdnumber(Cookies.get('userId'))
-    //     navigate('/auth')
-    //   }else{
+
         setAuthenticated(true);
-    //     checkPermission(userIdnumber); 
-    //   }
-         
-    // }
+
      
     const checkPermission = async (userId) => {
       try {
@@ -449,6 +442,7 @@ const [routes, setRoutes]= useState(route);
           <canvas ref={chartContainer} id="chart-canvas"></canvas>
         </div>
       </div>
+      <ChatWidget room ={room}/>
     </div>
   );
 };

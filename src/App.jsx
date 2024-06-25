@@ -16,21 +16,23 @@ function App() {
     <Router>
       <nav className="container">
         <ul className="nav-list">
-          <li>
+          {/* <li>
             <Link to="/">Test</Link>
-          </li>
-          <li>
-            <Link to="/map">Map</Link>
-          </li>
-          <li>
-            <Link to="/auth">Auth</Link>
+          </li> */}
+              <li>
+            <Link to="/">登入</Link>
           </li>
           <li>
             <Link to="/dashboard">Dashboard</Link>
           </li>
           <li>
-            <Link to="/chatwidget">ChatWidget</Link>
+            <Link to="/map">登山路線規劃</Link>
           </li>
+            
+          
+          {/* <li>
+            <Link to="/chatwidget">ChatWidget</Link>
+          </li> */}
         </ul>
       </nav>
       <Routes>
@@ -45,8 +47,8 @@ function App() {
             />
           }
         />
-        <Route path='/auth' element={<AuthPage setAuthenticated={setAuthenticated} />} />
-        <Route path='/' element={<Test isAuthenticated={isAuthenticated} />} />
+        <Route path='/' element={<AuthPage setAuthenticated={setAuthenticated} />} />
+        {/* <Route path='/' element={<Test isAuthenticated={isAuthenticated} />} /> */}
         <Route
           path='/dashboard'
           element={
@@ -56,9 +58,7 @@ function App() {
             />
           }
         />
-        <Route
-          path='/chatwidget'
-          element={<ChatWidget/>} />
+
       </Routes>
     </Router>
   );
