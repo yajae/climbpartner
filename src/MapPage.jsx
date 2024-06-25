@@ -36,7 +36,11 @@ const [routes, setRoutes]= useState(route);
      
     const checkPermission = async (userId) => {
       try {
-        const response = await fetch(`http://localhost:3000/check-permission/${userId}/${routeId}`, {
+        // const response = await fetch(`http://localhost:3000/check-permission/${userId}/${routeId}`, {
+        //   method: 'GET',
+        //   credentials: 'include'
+        // });
+        const response = await fetch(`/check-permission/${userId}/${routeId}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -143,7 +147,7 @@ const [routes, setRoutes]= useState(route);
     if (map && isAuthenticated) {
       // console.log('before fetch',route)
       fetchInitialMarkers(userId);
-      socketRef.current = io('http://localhost:3000', {
+      socketRef.current = io('', {
         withCredentials: true,
       });
       socketRef.current.emit('join-room', room);
@@ -188,21 +192,21 @@ const [routes, setRoutes]= useState(route);
 
   const fetchInitialMarkers = async (userId) => {
     try {
-      // console.log('now is fetching', route.markers.day1)
-      const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include'
-      });
-      // const response = await fetch(`/markers/latest/${userId}/${routeId}`, {
+      // 在local時使用
+      // const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
       //   method: 'GET',
       //   headers: {
       //     'Content-Type': 'application/json'
       //   },
       //   credentials: 'include'
       // });
+      const response = await fetch(`/markers/latest/${userId}/${routeId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
       if (!response.ok) {
         throw new Error('Failed to fetch markers');
       }
@@ -312,7 +316,7 @@ const [routes, setRoutes]= useState(route);
         datasets: [{
           data: [],
           fill: true, // 使圖表下方填充顏色
-          backgroundColor: 'rgba(55, 162, 235, 0.3)', // 填充顏色
+          backgroundColor: 'rgba(55, 162, 235, 0.3)',
           borderColor: '#37a2eb',
           tension: 0.4
         }]
@@ -326,11 +330,11 @@ const [routes, setRoutes]= useState(route);
         responsive: true,
         scales: {
           x: {
-            grid: { display: true, color: '#e0e0e0' }, // 顯示網格
+            grid: { display: true, color: '#e0e0e0' }, 
           },
           y: {
             min: 0,
-            grid: { display: true, color: '#e0e0e0' }, // 顯示網格
+            grid: { display: true, color: '#e0e0e0' }, 
           }
         },
         elements: { point: { radius: 0 } },

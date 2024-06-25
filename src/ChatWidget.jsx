@@ -50,9 +50,10 @@ const ChatWidget = ({ room }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
+      // const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
+       const response = await fetch(`/chat-messages/${room}`);
       const data = await response.json();
-      setMessages(Array.isArray(data) ? data : []);  // 确保 data 是一个数组
+      setMessages(Array.isArray(data) ? data : []); 
       setFilteredMessages(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching messages:', error);
