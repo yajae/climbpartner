@@ -3,19 +3,32 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Dashboard.css';  
 import axios from 'axios';
 import PermissionModal from './PermissionModal'; 
+import Cookies from 'js-cookie';
 
 const Dashboard = ({ routes, setRoutes }) => {
-  const location = useLocation();
-  const { userId } = location.state || {};
+
+ 
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const userIdnumber =  localStorage.getItem('userId');
+  const [userId, setUserId] = useState(userIdnumber);
+  const id = localStorage.getItem('userId');
+  
   useEffect(() => {
+    // if (location.state && location.state.userId) {
+     
+      console.log('localStorage.getItem', localStorage.getItem('userId'));
+      setUserId(id);
+    // } else {
+    //   const id = Cookies.get('userId'); // 从Local Storage中读取
+    //   console.log('User ID from local storage:', id); // 检查是否读取正确
+    //   setUserId(id);
+    // }
     const fetchRoutes = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/user-paths/${userId}`);
-        console.log(response.data)
+        const response = await axios.get(`http://localhost:3000/api/user-paths/${id}`);
         setRoutes(response.data);
       } catch (error) {
         console.error('Error fetching user routes', error);
@@ -23,7 +36,20 @@ const Dashboard = ({ routes, setRoutes }) => {
     };
 
     fetchRoutes();
-  }, [userId, setRoutes]);
+  }, [location.state]);
+
+  // useEffect(() => {
+  //   const fetchRoutes = async () => {
+  //     try {
+  //       const response = await axios.get(`http://localhost:3000/api/user-paths/${userId}`);
+  //       setRoutes(response.data);
+  //     } catch (error) {
+  //       console.error('Error fetching user routes', error);
+  //     }
+  //   };
+
+  //   fetchRoutes();
+  // }, [ setRoutes]);
 
   const handleOpenModal = (route) => {
     setSelectedRoute(route);
@@ -36,7 +62,8 @@ const Dashboard = ({ routes, setRoutes }) => {
   };
 
   const handleUpdateRoute = (route) => {
-    navigate(`/map?routeId=${route.routeId}`, { state: { userId, route } });
+    console.log('route', route)
+    navigate(`/map?routeId=${route._id}`, { state: {  route } });
   };
   const updateRoutePermissions = (routeId, newPermissions) => {
     setRoutes(prevRoutes => prevRoutes.map(route => 

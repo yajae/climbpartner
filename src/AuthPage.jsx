@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-
+import Cookies from 'js-cookie';
 const AuthPage = ({ setAuthenticated }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+
   const navigate = useNavigate();
 
   const toggleAuthMode = () => {
@@ -33,12 +34,16 @@ const AuthPage = ({ setAuthenticated }) => {
     const data = await response.json();
     if (data.success) {
       setAuthenticated(true);
+      localStorage.setItem('userId', data.userId);
+
       navigate('/dashboard', { state: { userId: data.userId } });
     } else {
-      alert(data.message || 'Authentication failed');
+      alert('Login fail');
     }
+
   };
 
+ 
   return (
     <div>
       <form onSubmit={handleSubmit}>

@@ -6,7 +6,7 @@ import AuthPage from './AuthPage';
 import MapPage from './MapPage';
 import Test from './test';
 import Dashboard from './Dashboard';
-import RoutePlanner from './RoutePlanner';
+import ChatWidget from './ChatWidget';
 
 function App() {
   const [isAuthenticated, setAuthenticated] = useState(false);
@@ -29,7 +29,7 @@ function App() {
             <Link to="/dashboard">Dashboard</Link>
           </li>
           <li>
-            <Link to="/routeplanner">RoutePlanner</Link>
+            <Link to="/chatwidget">ChatWidget</Link>
           </li>
         </ul>
       </nav>
@@ -57,14 +57,8 @@ function App() {
           }
         />
         <Route
-          path='/routeplanner'
-          element={
-            <RoutePlanner
-              setRoutes={setRoutes}
-              routes={routes}
-            />
-          }
-        />
+          path='/chatwidget'
+          element={<ChatWidget/>} />
       </Routes>
     </Router>
   );

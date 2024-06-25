@@ -1,21 +1,33 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './PermissionModal.css';
 import axios from 'axios';
 
 const PermissionModal = ({ route, onClose, onPermissionsChange }) => {
   const [permission, setPermission] = useState(route.permissions.type || 'private');
   const [friends, setFriends] = useState(route.permissions.friends.map(friend => friend._id) || []);
+  const [shareLink, setShareLink] = useState('');
+  const userId = localStorage.getItem('userId');
+  const generateShareLink = (routeId) => {
+    const link = `${window.location.origin}/map?routeId=${routeId}`;
+    setShareLink(link);
+    alert(`分享此連結給朋友: ${link}`);
+  };
 
   const handleSave = async () => {
     try {
       await axios.post('http://localhost:3000/update-permissions', {
-        userId: 1, // 确保传递正确的 userId
-        routeId: route.routeId, // 确保 route 对象包含有效的 routeId
+        userId: userId, 
+        routeId: route.routeId, 
         permissionType: permission,
         friends: permission === 'friends' ? friends : []
       });
-      console.log(`Permissions updated for route ${route.name}`);
-      onPermissionsChange(route.routeId, { type: permission, friends }); 
+      console.log(`route`,route);
+      onPermissionsChange(route.routeId, { type: permission, friends });
+
+      if (permission === 'friends'|| permission === 'public') {
+        generateShareLink(route._id);
+      }
+
       onClose();
     } catch (error) {
       console.error('Error updating permissions:', error);
@@ -60,6 +72,11 @@ const PermissionModal = ({ route, onClose, onPermissionsChange }) => {
                 onChange={(e) => setFriends(e.target.value.split(',').map(f => f.trim()))} 
               />
             </label>
+            {shareLink && (
+              <div>
+                <p>分享連結: <a href={shareLink} target="_blank" rel="noopener noreferrer">{shareLink}</a></p>
+              </div>
+            )}
           </div>
         )}
         <div>

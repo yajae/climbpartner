@@ -80,7 +80,54 @@ const mapSchema = new mongoose.Schema({
     }
   });
   
-  const MapModel = conn.model('Map', mapSchema);
+const MapModel = conn.model('Map', mapSchema);
+const checkPermissions = async (req, res, next) => {
+    const { routeId, userId } = req.query;
+
+    try {
+        const userPath = await UserPathModel.findOne({ 'paths.routeId': routeId }).populate('paths.permissions.friends');
+
+        if (!userPath) {
+            return res.status(404).send('Route not found');
+        }
+
+        const route = userPath.paths.find(r => r.routeId.toString() === routeId);
+
+        if (!route) {
+            return res.status(404).send('Route not found');
+        }
+        next()
+        // if (route.permissions.type === 'public' ||
+        //     (route.permissions.type === 'friends' && route.permissions.friends.some(friend => friend._id.toString() === userId)) ||
+        //     (route.permissions.type === 'private' && userPath.userId.toString() === userId)) {
+        //     next();
+        // } else {
+        //     res.status(403).send('You do not have permission to access this route');
+        // }
+    } catch (error) {
+        console.error('Error checking permissions:', error);
+        res.status(500).send('Internal server error');
+    }
+};
+
+// Route to get the map
+app.get('/map', checkPermissions, async (req, res) => {
+    const { routeId } = req.query;
+    console.log('routeId',routeId)
+    try {
+        const userPath = await UserPathModel.findOne({ 'paths.routeId': routeId }).populate('paths.permissions.friends');
+        const route = userPath.paths.find(r => r.routeId.toString() === routeId);
+
+        if (!route) {
+            return res.status(404).send('Route not found');
+        }
+
+        res.send(route);
+    } catch (error) {
+        console.error('Error fetching route:', error);
+        res.status(500).send('Internal server error');
+    }
+});
 
 
 app.get('/api/user-paths/:userId', async (req, res) => {
@@ -141,32 +188,36 @@ app.post('/update-permissions', async (req, res) => {
     }
 });
 
-app.get('/check-permission/:routeId/:userId', async (req, res) => {
-  const { routeId, userId } = req.params;
-
+app.get('/check-permission/:userId/:routeId', async (req, res) => {
+  const { routeId,userId } = req.params;
+    console.log('routeId',routeId)
   try {
-    const userPath = await UserPathModel.findOne({ 'paths.routeId': routeId });
+    const userPath = await UserPathModel.findOne({ 'paths._id': new ObjectId(routeId) });
+    console.log(1)
 
     if (!userPath) {
       return res.status(404).json({ hasPermission: false });
     }
 
-    const path = userPath.paths.find(p => p.routeId === parseInt(routeId));
-
+    const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
+    console.log(2)
     if (!path) {
       return res.status(404).json({ hasPermission: false });
     }
-
-    if (path.permissions.type === 'private' && userPath.userId !== userId) {
+    console.log('path.permissions.type',path.permissions.type)
+    if (path.permissions.type === 'private' && userPath.userId !== Number(userId)) {
+        console.log('private false',typeof(userPath.userId),typeof(userId))
       return res.status(403).json({ hasPermission: false });
     }
 
-    if (path.permissions.type === 'friends' && !path.permissions.friends.includes(ObjectId(userId))) {
-      return res.status(403).json({ hasPermission: false });
-    }
+    // if (path.permissions.type === 'friends' && !path.permissions.friends.includes(new ObjectId(userId))) {
+    //     console.log('friends false')
+    //   return res.status(403).json({ hasPermission: false });
+    // }
 
     res.status(200).json({ hasPermission: true });
   } catch (error) {
+    console.log('err',error)
     res.status(500).json({ hasPermission: false });
   }
 });
@@ -175,23 +226,12 @@ app.post('/login', async (req, res) => {
     const { username, password } = req.body;
     const user = await UserModel.findOne({ username });
     if (user && user.password === password) {
-        res.cookie('userId', user.id, { httpOnly: true });
         res.json({ success: true, userId: user.id });
-
     } else {
         res.json({ success: false });
     }
 });
 
-// 检查登录状态接口
-app.get('/check-login', (req, res) => {
-    const userId = req.cookies.userId;
-    if (userId) {
-      res.json({ success: true, userId });
-    } else {
-      res.json({ success: false });
-    }
-  });
 
 app.post('/update-permissions', async (req, res) => {
   const { mapId, permissionType, friends } = req.body;
@@ -237,7 +277,7 @@ io.on('connection', async (socket) => {
     socket.on('new-marker', async (data) => {
         const { lngLat ,userId,routeId,room} = data;
        
-        const userPath = await UserPathModel.findOne({ userId:1 });
+        const userPath = await UserPathModel.findOne({ userId });
           
         // 查找該用戶路徑中指定 routeId 的路徑
         const path = userPath.paths.find(p => p.routeId === parseInt(routeId));
@@ -247,8 +287,7 @@ io.on('connection', async (socket) => {
             path.markers.day1.push(lngLat);
           
            const result = await userPath.save();  // 保存整個文檔
-            console.log('保存成功');
-        
+ 
         } 
 
         io.to(room).emit('new-marker', { lngLat });
@@ -266,6 +305,7 @@ io.on('connection', async (socket) => {
             );
             console.log('delete',result)
             console.log('lngLat',lngLat)
+            io.emit('delete-marker', lngLat);
             io.to(room).emit('delete-marker', lngLat);
         } catch (error) {
             console.error('刪除標記數據時發生錯誤:', error);
@@ -320,17 +360,17 @@ app.get('/markers/latest/:userId/:routeId', async (req, res) => {
         console.log(`開始獲取用戶 ${userId} 的路徑 ${routeId} 的最新標記`);
 
         // 查找指定 userId 的用戶路徑
-        const userPath = await UserPathModel.findOne({ userId });
+        const userPath = await UserPathModel.findOne({ 'paths._id': new ObjectId(routeId) });
         if (!userPath) {
             return res.status(404).json({ error: '用戶路徑未找到' });
         }
 
         // 查找該用戶路徑中指定 routeId 的路徑
-        const path = userPath.paths.find(p => p.routeId === parseInt(routeId));
-        if (!path) {
-            return res.status(404).json({ error: '路徑未找到' });
-        }
-        console.log(path)
+        const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
+        // if (!path) {
+        //     return res.status(404).json({ error: '路徑未找到' });
+        // }
+        console.log('fetch old path',path)
    
 
         console.log('獲取到的標記:', path.markers);

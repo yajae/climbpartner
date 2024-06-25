@@ -6,6 +6,7 @@ import io from 'socket.io-client';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg2MDRvdmsxYnF6MmtzZGxrd2gzcWczIn0.IGocoVPwJFYXIDp6Qutytw';
 
@@ -18,40 +19,47 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
   const socketRef = useRef(null);
   const location = useLocation();
 
-const { route,userId } = location.state || {};
+const { route} = location.state || {};
 console.log('select route',route)
+
 const [routes, setRoutes]= useState(route);
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
   const routeId = queryParams.get('routeId') || 1;
-console.log('userId',userId)
-  const room = `1-1`;
-
-  // 检查用户是否已登录
+  const userId = localStorage.getItem('userId');
+  const room = `${userId}-${routeId}`;
   useEffect(() => {
-    const checkLoginStatus = async () => {
+    // const checkLoginStatus = async () => {
+    //   console.log('userId',userIdnumber)
+    //   if(!userIdnumber ){
+    //     setuserIdnumber(Cookies.get('userId'))
+    //     navigate('/auth')
+    //   }else{
+        setAuthenticated(true);
+    //     checkPermission(userIdnumber); 
+    //   }
+         
+    // }
+     
+    const checkPermission = async (userId) => {
       try {
-        const response = await fetch('http://localhost:3000/check-login', {
+        const response = await fetch(`http://localhost:3000/check-permission/${userId}/${routeId}`, {
           method: 'GET',
           credentials: 'include'
         });
-        // const response = await fetch('/check-login', {
-        //   method: 'GET',
-        //   credentials: 'include'
-        // });
         const data = await response.json();
-        if (!data.success) {
+        console.log('data',data)
+        if (data.hasPermission===false) {
+          alert('您沒有權限查看此頁面');
           navigate('/auth');
-        } else {
-          setAuthenticated(true);
         }
       } catch (error) {
-        console.error('Error checking login status:', error);
+        console.error('Error checking permission:', error);
       }
     };
-
-    checkLoginStatus();
-  }, [setAuthenticated, navigate]);
+    checkPermission(userId)
+    // checkLoginStatus();
+  }, [setAuthenticated, navigate, routeId, userId]);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -140,8 +148,8 @@ console.log('userId',userId)
 
   useEffect(() => {
     if (map && isAuthenticated) {
-      console.log('before fetch',route)
-      fetchInitialMarkers(userId, route);
+      // console.log('before fetch',route)
+      fetchInitialMarkers(userId);
       socketRef.current = io('http://localhost:3000', {
         withCredentials: true,
       });
@@ -185,16 +193,16 @@ console.log('userId',userId)
     }
   }, [map, isAuthenticated]);
 
-  const fetchInitialMarkers = async (userId, route) => {
+  const fetchInitialMarkers = async (userId) => {
     try {
-      console.log('now is fetching', route.markers.day1)
-      // const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
-      //   method: 'GET',
-      //   headers: {
-      //     'Content-Type': 'application/json'
-      //   },
-      //   credentials: 'include'
-      // });
+      // console.log('now is fetching', route.markers.day1)
+      const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
       // const response = await fetch(`/markers/latest/${userId}/${routeId}`, {
       //   method: 'GET',
       //   headers: {
@@ -202,14 +210,14 @@ console.log('userId',userId)
       //   },
       //   credentials: 'include'
       // });
-      // if (!response.ok) {
-      //   throw new Error('Failed to fetch markers');
-      // }
-      // const latestMarkers = await response.json();
-      // console.log('Fetched markers:', latestMarkers);
+      if (!response.ok) {
+        throw new Error('Failed to fetch markers');
+      }
+      const latestMarkers = await response.json();
+      console.log('Fetched markers:', latestMarkers);
       if (map ) {
-        console.log('now in the if else',route.markers.day1)
-        const newMarkers = route.markers.day1.map((marker) => {
+        // console.log('now in the if else',route.markers.day1)
+        const newMarkers = latestMarkers.map((marker) => {
           const marker1 = new mapboxgl.Marker()
             .setLngLat([marker.lng, marker.lat])
             .addTo(map);
@@ -298,7 +306,7 @@ console.log('userId',userId)
       return;
     }
 
-    console.log('Coordinates:', coordinates);
+   
 
     Object.keys(Chart.instances).forEach(key => {
       Chart.instances[key].destroy();
@@ -405,11 +413,6 @@ console.log('userId',userId)
     document.getElementById('day-1').appendChild(newLabel);
   };
 
-  const generateShareLink = () => {
-    const shareLink = `${window.location.origin}/map?userId=${userId}&routeId=1`;
-    alert(`分享此連結給朋友: ${shareLink}`);
-  };
-
   const handleSaveRoute = () => {
     const routeName = document.getElementById('route-name').value;
     const newRoute = {
@@ -437,7 +440,7 @@ console.log('userId',userId)
           <div>第1天</div>
           <div id="walking-time"></div>
         </div>
-        <button onClick={generateShareLink}>生成分享連結</button>
+
         <button onClick={handleSaveRoute}>保存路線</button>
       </div>
       <div id="main-info">
