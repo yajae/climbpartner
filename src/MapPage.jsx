@@ -147,7 +147,7 @@ const [routes, setRoutes]= useState(route);
     if (map && isAuthenticated) {
       // console.log('before fetch',route)
       fetchInitialMarkers(userId);
-      socketRef.current = io('', {
+      socketRef.current = io('http://35.76.14.198:3000', {
         withCredentials: true,
       });
       socketRef.current.emit('join-room', room);

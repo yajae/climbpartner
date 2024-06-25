@@ -17,14 +17,14 @@ app.use(express.json());
 app.use(cookieParser());
 const { ObjectId } = mongoose.Types;
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: '*',
     credentials: true
 };
 app.use(cors(corsOptions));
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
+        origin: '*',
         methods: ['GET', 'POST'],
         credentials: true
     }
@@ -304,7 +304,7 @@ io.on('connection', async (socket) => {
             console.error('保存聊天消息时发生错误:', error);
         }
     });
-    
+
     socket.on('disconnect', () => {
         console.log('客户端已断开连接:', socket.id);
     });

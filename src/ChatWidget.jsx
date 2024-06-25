@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import io from 'socket.io-client';
 import './ChatWidget.css';
 
-const socket = io('http://localhost:3000');
+const socket = io('http://35.76.14.198:3000');
 
 const ChatWidget = ({ room }) => {
   const [isOpen, setIsOpen] = useState(false);
