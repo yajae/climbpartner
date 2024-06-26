@@ -3,9 +3,11 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Dashboard.css';  
 import axios from 'axios';
 import PermissionModal from './PermissionModal'; 
-
+import Cookies from 'js-cookie';
 
 const Dashboard = ({ routes, setRoutes }) => {
+
+ 
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -26,7 +28,7 @@ const Dashboard = ({ routes, setRoutes }) => {
     // }
     const fetchRoutes = async () => {
       try {
-        const response = await axios.get(`/api/user-paths/${id}`);
+        const response = await axios.get(`http://localhost:3000/api/user-paths/${id}`);
         setRoutes(response.data);
       } catch (error) {
         console.error('Error fetching user routes', error);
@@ -85,7 +87,7 @@ const Dashboard = ({ routes, setRoutes }) => {
 
   return (
     <div className="dashboard-container">
-      <h1>My Dashboard</h1>
+      <h1></h1>
       
       {routes.length === 0 ? (
         <p>No routes available. Add a new route to get started.</p>
@@ -112,7 +114,7 @@ const Dashboard = ({ routes, setRoutes }) => {
         <PermissionModal 
           route={selectedRoute} 
           onClose={handleCloseModal} 
-          onPermissionsChange={updateRoutePermissions} 
+          onPermissionsChange={updateRoutePermissions} // Pass the update function as prop
         />
       )}
 

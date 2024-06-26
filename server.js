@@ -17,20 +17,19 @@ app.use(express.json());
 app.use(cookieParser());
 const { ObjectId } = mongoose.Types;
 const corsOptions = {
-    origin: '*',
+    origin: 'http://localhost:5173',
     credentials: true
 };
 app.use(cors(corsOptions));
 
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: 'http://localhost:5173',
         methods: ['GET', 'POST'],
         credentials: true
     }
 });
 
-// Define User Schema
 const userSchema = new mongoose.Schema({
     id: Number,
     username: String,
@@ -39,14 +38,12 @@ const userSchema = new mongoose.Schema({
 
 const UserModel = conn.model('User', userSchema);
 
-// Define Marker Schema
 const markerSchema = new mongoose.Schema({
     lng: Number,
     lat: Number,
     day: Number
 });
 
-// Define Path Schema
 const pathSchema = new Schema({
     routeId: Number,
     markers: {
@@ -63,7 +60,6 @@ const pathSchema = new Schema({
     notes: String
 });
 
-// Define UserPath Schema
 const userPathSchema = new mongoose.Schema({
     userId: Number,
     paths: [pathSchema]
@@ -79,54 +75,6 @@ const chatMessageSchema = new mongoose.Schema({
   });
   
   const ChatMessage = conn.model('ChatMessage', chatMessageSchema);
-const checkPermissions = async (req, res, next) => {
-    const { routeId, userId } = req.query;
-
-    try {
-        const userPath = await UserPathModel.findOne({ 'paths.routeId': routeId }).populate('paths.permissions.friends');
-
-        if (!userPath) {
-            return res.status(404).send('Route not found');
-        }
-
-        const route = userPath.paths.find(r => r.routeId.toString() === routeId);
-
-        if (!route) {
-            return res.status(404).send('Route not found');
-        }
-        next()
-        // if (route.permissions.type === 'public' ||
-        //     (route.permissions.type === 'friends' && route.permissions.friends.some(friend => friend._id.toString() === userId)) ||
-        //     (route.permissions.type === 'private' && userPath.userId.toString() === userId)) {
-        //     next();
-        // } else {
-        //     res.status(403).send('You do not have permission to access this route');
-        // }
-    } catch (error) {
-        console.error('Error checking permissions:', error);
-        res.status(500).send('Internal server error');
-    }
-};
-
-// Route to get the map
-app.get('/map', checkPermissions, async (req, res) => {
-    const { routeId } = req.query;
-    console.log('routeId',routeId)
-    try {
-        const userPath = await UserPathModel.findOne({ 'paths.routeId': routeId }).populate('paths.permissions.friends');
-        const route = userPath.paths.find(r => r.routeId.toString() === routeId);
-
-        if (!route) {
-            return res.status(404).send('Route not found');
-        }
-
-        res.send(route);
-    } catch (error) {
-        console.error('Error fetching route:', error);
-        res.status(500).send('Internal server error');
-    }
-});
-
 
 app.get('/api/user-paths/:userId', async (req, res) => {
     try {
@@ -304,7 +252,7 @@ io.on('connection', async (socket) => {
             console.error('保存聊天消息时发生错误:', error);
         }
     });
-
+    
     socket.on('disconnect', () => {
         console.log('客户端已断开连接:', socket.id);
     });
@@ -365,7 +313,7 @@ app.get('/markers/latest/:userId/:routeId', async (req, res) => {
 });
 
 
-// GET messages for a specific room
+
 app.get('/chat-messages/:room', async (req, res) => {
     try {
       const { room } = req.params;

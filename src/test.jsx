@@ -1,103 +1,137 @@
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
+import React, { useState, useEffect } from 'react';
 import Chart from 'chart.js/auto';
-import 'mapbox-gl/dist/mapbox-gl.css';
 
-mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
+const App = () => {
+  const [city, setCity] = useState('臺北市');
+  const [temperatureData, setTemperatureData] = useState([]);
+  const [rainfallData, setRainfallData] = useState([]);
+  const [uvIndexData, setUvIndexData] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-const MapWithElevation = () => {
-  const mapContainer = useRef(null);
-  const chartContainer = useRef(null);
-  const [map, setMap] = useState(null);
-  const [chart, setChart] = useState(null);
+  const apiKey = 'CWA-470BABA2-7EE9-45E7-9E55-C5FF8DEE1DB2'; // 替換為你的API金鑰
+  const cities = ['臺北市', '高雄市', '台中市']; // 可以添加更多城市
+
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      const tempRainUrl = `https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0001-001?Authorization=${apiKey}&locationName=${city}`;
+      const uvIndexUrl = `https://opendata.cwb.gov.tw/api/v1/rest/datastore/O-A0005-001?Authorization=${apiKey}&locationName=${city}`;
+
+      const [tempRainResponse, uvIndexResponse] = await Promise.all([fetch(tempRainUrl), fetch(uvIndexUrl)]);
+
+      if (!tempRainResponse.ok || !uvIndexResponse.ok) {
+        throw new Error('Network response was not ok');
+      }
+
+      const tempRainResult = await tempRainResponse.json();
+      const uvIndexResult = await uvIndexResponse.json();
+
+      const temperatureRecords = tempRainResult.records.location;
+      const uvIndexRecords = uvIndexResult.records.location;
+
+      setTemperatureData(temperatureRecords);
+      setRainfallData(temperatureRecords);
+      setUvIndexData(uvIndexRecords);
+      setLoading(false);
+    } catch (err) {
+      setError(err);
+      setLoading(false);
+    }
+  };
+
+  const handleButtonClick = () => {
+    fetchData();
+  };
 
   useEffect(() => {
-    const mapInstance = new mapboxgl.Map({
-      container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/outdoors-v12',
-      center: [121.5438, 25.19],
-      zoom: 12
-    });
-
-    mapInstance.on('load', () => {
-      mapInstance.addSource('mapbox-dem', {
-        type: 'raster-dem',
-        url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
-        tileSize: 512,
-        maxzoom: 20
+    if (temperatureData.length > 0) {
+      const ctx = document.getElementById('temperatureChart').getContext('2d');
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: temperatureData.map(item => item.time.obsTime),
+          datasets: [{
+            label: 'Temperature (°C)',
+            data: temperatureData.map(item => parseFloat(item.weatherElement.find(el => el.elementName === 'TEMP').elementValue)),
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            fill: true,
+          }]
+        },
+        options: {
+          scales: {
+            x: { type: 'time', time: { unit: 'hour' } },
+            y: { beginAtZero: true }
+          }
+        }
       });
-      mapInstance.setTerrain({ source: 'mapbox-dem', exaggeration: 1 });
 
-      // 加載舊座標點並生成海拔高度變化圖表
-      loadCoordinatesAndGenerateProfile(mapInstance);
-    });
+      const ctx2 = document.getElementById('rainfallChart').getContext('2d');
+      new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: rainfallData.map(item => item.time.obsTime),
+          datasets: [{
+            label: 'Rainfall (mm)',
+            data: rainfallData.map(item => parseFloat(item.weatherElement.find(el => el.elementName === 'HUMD').elementValue)),
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            fill: true,
+          }]
+        },
+        options: {
+          scales: {
+            x: { type: 'time', time: { unit: 'hour' } },
+            y: { beginAtZero: true }
+          }
+        }
+      });
 
-    setMap(mapInstance);
-
-    return () => {
-      mapInstance.remove();
-    };
-  }, []);
-
-  const loadCoordinatesAndGenerateProfile = async (mapInstance) => {
-    const coordinates = [
-      [121.5438, 25.19],
-      [121.5500, 25.20],
-      [121.5600, 25.21]
-    ];
-
-    coordinates.forEach(coord => {
-      new mapboxgl.Marker().setLngLat(coord).addTo(mapInstance);
-    });
-
-    const elevations = await Promise.all(coordinates.map(coord => mapInstance.queryTerrainElevation(coord)));
-    generateElevationProfile(coordinates, elevations);
-  };
-
-  const generateElevationProfile = (coordinates, elevations) => {
-    if (chart) {
-      chart.destroy();
+      const ctx3 = document.getElementById('uvIndexChart').getContext('2d');
+      new Chart(ctx3, {
+        type: 'line',
+        data: {
+          labels: uvIndexData.map(item => item.time.obsTime),
+          datasets: [{
+            label: 'UV Index',
+            data: uvIndexData.map(item => parseFloat(item.weatherElement.find(el => el.elementName === 'UVI').elementValue)),
+            borderColor: 'rgba(75, 192, 192, 1)',
+            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+            fill: true,
+          }]
+        },
+        options: {
+          scales: {
+            x: { type: 'time', time: { unit: 'hour' } },
+            y: { beginAtZero: true }
+          }
+        }
+      });
     }
-
-    const ctx = chartContainer.current.getContext('2d');
-    const newChart = new Chart(ctx, {
-      type: 'line',
-      data: {
-        labels: coordinates.map((coord, index) => `Point ${index + 1}`),
-        datasets: [{
-          label: 'Elevation (m)',
-          data: elevations,
-          fill: false,
-          tension: 0.4
-        }]
-      },
-      options: {
-        plugins: {
-          legend: { display: false },
-          title: { display: true, align: 'start', text: 'Elevation (m)' }
-        },
-        maintainAspectRatio: false,
-        responsive: true,
-        scales: {
-          x: { grid: { display: false } },
-          y: { min: 0, grid: { display: false } }
-        },
-        elements: { point: { radius: 0 } },
-        layout: { padding: { top: 6, right: 20, bottom: -10, left: 20 } }
-      }
-    });
-
-    setChart(newChart);
-  };
+  }, [temperatureData, rainfallData, uvIndexData]);
 
   return (
     <div>
-      <div ref={mapContainer} style={{ width: '100%', height: '400px' }}></div>
-      <div style={{ width: '100%', height: '400px' }}>
-        <canvas ref={chartContainer} id="chart-canvas"></canvas>
+      <h1>Weather Data for {city}</h1>
+      <div>
+        <label htmlFor="city">Select City:</label>
+        <select id="city" value={city} onChange={(e) => setCity(e.target.value)}>
+          {cities.map((cityName, index) => (
+            <option key={index} value={cityName}>{cityName}</option>
+          ))}
+        </select>
+      </div>
+      <button onClick={handleButtonClick}>Show Weather Data</button>
+      {loading && <div>Loading...</div>}
+      {error && <div>Error: {error.message}</div>}
+      <div>
+        <canvas id="temperatureChart" width="400" height="200"></canvas>
+        <canvas id="rainfallChart" width="400" height="200"></canvas>
+        <canvas id="uvIndexChart" width="400" height="200"></canvas>
       </div>
     </div>
   );
 };
 
-export default MapWithElevation;
+export default App;

@@ -23,16 +23,16 @@ function App() {
             <Link to="/">登入</Link>
           </li>
           <li>
-            <Link to="/dashboard">Dashboard</Link>
+            <Link to="/dashboard">路線紀錄</Link>
           </li>
           <li>
             <Link to="/map">登山路線規劃</Link>
           </li>
-            
+          <li>
+            <Link to="/weather">天氣預測</Link>
+          </li>
           
-          {/* <li>
-            <Link to="/chatwidget">ChatWidget</Link>
-          </li> */}
+   
         </ul>
       </nav>
       <Routes>

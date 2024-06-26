@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import './ChatWidget.css';
 
-const socket = io('http://35.76.14.198:3000');
+const socket = io('http://localhost:3000', {
+  withCredentials: true,
+});
 
 const ChatWidget = ({ room }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +13,7 @@ const ChatWidget = ({ room }) => {
   const [username, setUsername] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredMessages, setFilteredMessages] = useState([]);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     const storedUsername = localStorage.getItem('userId');
@@ -30,6 +33,7 @@ const ChatWidget = ({ room }) => {
         const newmsgs = [...(premsgs || []), data];
         return newmsgs;
       });
+     
     });
 
     return () => {
@@ -37,6 +41,11 @@ const ChatWidget = ({ room }) => {
     };
   }, [username, room]);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  
   useEffect(() => {
     if (searchTerm) {
       const filtered = messages.filter((msg) =>
@@ -50,8 +59,8 @@ const ChatWidget = ({ room }) => {
 
   const fetchMessages = async () => {
     try {
-      // const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
-       const response = await fetch(`/chat-messages/${room}`);
+       const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
+      //  const response = await fetch(`/chat-messages/${room}`);
       const data = await response.json();
       setMessages(Array.isArray(data) ? data : []); 
       setFilteredMessages(Array.isArray(data) ? data : []);
@@ -61,10 +70,25 @@ const ChatWidget = ({ room }) => {
   };
 
   const sendMessage = () => {
+    if (message.trim() !== '') {
     const data = { user: username, message, timestamp: new Date(), room };
     socket.emit('sendMessage', data);
     setMessage('');
+    }
   };
+
+  
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleKeyPress = (event) => {
+    if (event.key === 'Enter') {
+      sendMessage();
+    }
+  };
+
 
   const highlightText = (text, highlight) => {
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
@@ -107,6 +131,7 @@ const ChatWidget = ({ room }) => {
               ) : (
                 <div>No messages found</div>
               )}
+              <div ref={messagesEndRef} /> 
             </div>
             <div className="chat-footer">
               <div className="user-name">{username}</div>
@@ -114,6 +139,7 @@ const ChatWidget = ({ room }) => {
                 type="text"
                 placeholder="Type a message"
                 value={message}
+                onKeyDown={handleKeyPress}
                 onChange={(e) => setMessage(e.target.value)}
                 className="chat-input"
               />
