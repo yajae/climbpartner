@@ -7,7 +7,6 @@ const socket = io('http://localhost:3000', {
 });
 
 const ChatWidget = ({ room }) => {
-  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState('');
   const [username, setUsername] = useState('');
@@ -33,7 +32,6 @@ const ChatWidget = ({ room }) => {
         const newmsgs = [...(premsgs || []), data];
         return newmsgs;
       });
-     
     });
 
     return () => {
@@ -45,7 +43,6 @@ const ChatWidget = ({ room }) => {
     scrollToBottom();
   }, [messages]);
 
-  
   useEffect(() => {
     if (searchTerm) {
       const filtered = messages.filter((msg) =>
@@ -59,10 +56,9 @@ const ChatWidget = ({ room }) => {
 
   const fetchMessages = async () => {
     try {
-       const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
-      //  const response = await fetch(`/chat-messages/${room}`);
+      const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
       const data = await response.json();
-      setMessages(Array.isArray(data) ? data : []); 
+      setMessages(Array.isArray(data) ? data : []);
       setFilteredMessages(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching messages:', error);
@@ -71,14 +67,12 @@ const ChatWidget = ({ room }) => {
 
   const sendMessage = () => {
     if (message.trim() !== '') {
-    const data = { user: username, message, timestamp: new Date(), room };
-    socket.emit('sendMessage', data);
-    setMessage('');
+      const data = { user: username, message, timestamp: new Date(), room };
+      socket.emit('sendMessage', data);
+      setMessage('');
     }
   };
 
-  
-  
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -88,7 +82,6 @@ const ChatWidget = ({ room }) => {
       sendMessage();
     }
   };
-
 
   const highlightText = (text, highlight) => {
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
@@ -107,56 +100,49 @@ const ChatWidget = ({ room }) => {
 
   return (
     <div className="chat-widget">
-      {isOpen ? (
-        <div className="chat-box">
-          <div className="chat-header" onClick={() => setIsOpen(false)}>
-            Chat
+      <div className="chat-box">
+        <div className="chat-header">
+          Chat
+        </div>
+        <div className="chat-content">
+          <div className="chat-search">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
-          <div className="chat-content">
-            <div className="chat-search">
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-            <div className="chat-body">
-              {Array.isArray(filteredMessages) && filteredMessages.length > 0 ? (
-                filteredMessages.map((msg, index) => (
-                  <div key={index} className="chat-message">
-                    <strong>{msg.user}</strong>: {highlightText(msg.message, searchTerm)}
-                  </div>
-                ))
-              ) : (
-                <div>No messages found</div>
-              )}
-              <div ref={messagesEndRef} /> 
-            </div>
-            <div className="chat-footer">
-              <div className="user-name">{username}</div>
-              <input
-                type="text"
-                placeholder="Type a message"
-                value={message}
-                onKeyDown={handleKeyPress}
-                onChange={(e) => setMessage(e.target.value)}
-                className="chat-input"
-              />
-              <button onClick={sendMessage} className="chat-send-button">
-                Send
-              </button>
-            </div>
+          <div className="chat-body">
+            {Array.isArray(filteredMessages) && filteredMessages.length > 0 ? (
+              filteredMessages.map((msg, index) => (
+                <div key={index} className="chat-message">
+                  <strong>{msg.user}</strong>: {highlightText(msg.message, searchTerm)}
+                </div>
+              ))
+            ) : (
+              <div>No messages found</div>
+            )}
+            <div ref={messagesEndRef} /> 
+          </div>
+          <div className="chat-footer">
+            <div className="user-name">{username}</div>
+            <input
+              type="text"
+              placeholder="Type a message"
+              value={message}
+              onKeyDown={handleKeyPress}
+              onChange={(e) => setMessage(e.target.value)}
+              className="chat-input"
+            />
+            <button onClick={sendMessage} className="chat-send-button">
+              Send
+            </button>
           </div>
         </div>
-      ) : (
-        <button className="chat-toggle-button" onClick={() => setIsOpen(true)}>
-          <img src="chat-icon.png" alt="Chat" />
-        </button>
-      )}
+      </div>
     </div>
   );
-
 };
 
 export default ChatWidget;

@@ -1,70 +1,121 @@
 .map-page {
-    display: flex;
-    height: 100vh;
-  }
-  
-  #other-info {
-    width: 30%; /* 其他資料顯示在左邊，佔整個寬度的 30% */
-    height: 100vh;
-    background-color: rgba(255, 255, 255, 0.9);
-    z-index: 10;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-  }
-  
-  #main-info {
-    width: 70%; /* 地圖和圖表顯示在右邊，佔整個寬度的 70% */
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-  }
-  
-  #map {
-    width: 100%; /* 地圖顯示在 main-info 上方，佔 main-info 的 100% 寬度 */
-    height: 70%; /* 地圖顯示在 main-info 上方，佔 main-info 的 70% 高度 */
-    position: relative;
-  }
-  
-  #chart-container {
-    width: 100%; /* 圖表容器佔 main-info 的 100% 寬度 */
-    height: 30%; /* 圖表容器佔 main-info 的 30% 高度 */
-    text-align: center;
-    position: relative;
-  }
-  
-  #chart-canvas {
-    width: 100%;
-    height: 100%;
-  }
-  
-  #walking-time, #marker1-info {
-    background-color: white;
-    padding: 5px;
-    border-radius: 3px;
-    z-index: 10;
-    margin-bottom: 10px; /* 將元素之間的距離增加 */
-  }
-  
-  .add-button {
-    padding: 5px;
-    border-radius: 3px;
-    background-color: #4CAF50;
-    color: rgb(4, 2, 2);
-    cursor: pointer;
-    text-align: center;
-  }
-  
-  /* 表單容器的樣式 */
-.form-container {
-    display: flex; /* 使用 Flexbox 佈局 */
-    gap: 20px; /* 控制元素之間的間距 */
+  display: flex;
+  height: 150vh;
 }
 
-/* 表單元素的樣式 */
+#other-info {
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(255, 255, 255, 0.9);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+}
+
+#main-info {
+  width: 70%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+#map {
+  width: 100%;
+  height: 70%;
+  position: relative;
+}
+
+/* .chat-widget-container {
+  height: 60vh;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+} */
+
+#chart-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+#walking-time, #marker1-info {
+  background-color: white;
+  padding: 5px;
+  border-radius: 3px;
+  z-index: 10;
+  margin-bottom: 10px;
+}
+
+.add-button {
+  padding: 5px;
+  border-radius: 3px;
+  background-color: #4CAF50;
+  color: rgb(4, 2, 2);
+  cursor: pointer;
+  text-align: center;
+}
+
+.form-container {
+  display: flex;
+  gap: 20px;
+}
+
 .form-container > div {
-    flex: 1; /* 使每個子元素佔據相同的寬度 */
-    display: flex;
-    flex-direction: column; /* 確保 label 和 input 垂直排列 */
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.tabs {
+  display: flex;
+  justify-content: flex-start;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 20px;
+}
+
+/* .tab-button {
+  width: 150px;
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  text-align: center;
+} */
+
+.tab-button.active {
+  border-bottom: 2px solid #37a2eb;
+  font-weight: bold;
+}
+
+.tab-content {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+}
+
+.tab-box {
+  width: 150px;
+}
+
+#chat-box {
+  width: 150px;
+  height: 250px;
+}
+
+.toggle-elevation-button {
+  padding: 10px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin: 10px;
+}
+
+#chart-container {
+  width: 100%;
+  height: 30%;
 }

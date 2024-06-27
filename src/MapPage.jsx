@@ -7,6 +7,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
+import Tabs from './Tabs';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
 
@@ -27,8 +28,14 @@ const [routes, setRoutes]= useState(route);
   const queryParams = new URLSearchParams(location.search);
   const routeId = queryParams.get('routeId') || 1;
   const userId = localStorage.getItem('userId');
-  console.log('useriddddddd',userId)
+
   const room = `${routeId}`;
+  const [activeTab, setActiveTab] = useState(0);
+  const tabs = [
+    { label: '路線規劃' },
+    { label: '聊天室' }
+  ];
+
   useEffect(() => {
 
         setAuthenticated(true);
@@ -80,7 +87,7 @@ const [routes, setRoutes]= useState(route);
           mapInstance.on('sourcedata', async (e) => {
             if (e.sourceId === 'mapbox-dem' && e.isSourceLoaded) {
               console.log('Terrain data loaded');
-              await new Promise(resolve => setTimeout(resolve, 700)); // 延迟 0.5 秒
+              await new Promise(resolve => setTimeout(resolve, 700)); 
               setMap(mapInstance);
               mapInstance.on('click', handleClick);
             }
@@ -312,8 +319,8 @@ const [routes, setRoutes]= useState(route);
         labels: [],
         datasets: [{
           data: [],
-          fill: true, // 使圖表下方填充顏色
-          backgroundColor: 'rgba(55, 162, 235, 0.3)', // 填充顏色
+          fill: true, 
+          backgroundColor: 'rgba(55, 162, 235, 0.3)',
           borderColor: '#37a2eb',
           tension: 0.4
         }]
@@ -327,11 +334,11 @@ const [routes, setRoutes]= useState(route);
         responsive: true,
         scales: {
           x: {
-            grid: { display: true, color: '#e0e0e0' }, // 顯示網格
+            grid: { display: true, color: '#e0e0e0' },
           },
           y: {
             min: 0,
-            grid: { display: true, color: '#e0e0e0' }, // 顯示網格
+            grid: { display: true, color: '#e0e0e0' }, 
           }
         },
         elements: { point: { radius: 0 } },
@@ -419,23 +426,37 @@ const [routes, setRoutes]= useState(route);
 
   return (
     <div className="map-page">
-      <div id="other-info">
-        <div className="form-container">
-          <div>
-            <label htmlFor="route-name">路線名稱</label>
-            <input type="text" id="route-name" placeholder="輸入路線名稱" />
+      <div id='tab-box'>
+        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
+      <div className="tab-content">
+        {activeTab === 0 && (
+          <div id="other-info">
+            <div className="form-container">
+              <div>
+                <label htmlFor="route-name">路線名稱</label>
+                <input type="text" id="route-name" placeholder="輸入路線名稱" />
+              </div>
+              <div>
+                <label htmlFor="start-date">開始日期</label>
+                <input type="date" id="start-date" />
+              </div>
+            </div>
+            <button onClick={handleSaveRoute}>保存路線</button>
+            <div id="day-1">
+            <div>第1天</div>
+            <div id="walking-time"></div>
+            {/* 這裡可以添加更多的第1天的相關內容 */}
           </div>
-          <div>
-            <label htmlFor="start-date">開始日期</label>
-            <input type="date" id="start-date" />
           </div>
-        </div>
-        <div id="day-1">
-          <div>第1天</div>
-          <div id="walking-time"></div>
-        </div>
 
-        <button onClick={handleSaveRoute}>保存路線</button>
+        )}
+        {activeTab === 1 && (
+             <div className='chat-widget-container'>   <ChatWidget room={room} /></div>
+            
+     
+        )}
+   
+      </div>
       </div>
       <div id="main-info">
         <div ref={mapContainer} id="map"></div>
@@ -443,7 +464,7 @@ const [routes, setRoutes]= useState(route);
           <canvas ref={chartContainer} id="chart-canvas"></canvas>
         </div>
       </div>
-      <ChatWidget room ={room}/>
+
     </div>
   );
 };
