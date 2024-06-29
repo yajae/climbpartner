@@ -8,6 +8,7 @@ import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
 import Tabs from './Tabs';
+import MapChart from './MapChart';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
 
@@ -33,8 +34,10 @@ const [routes, setRoutes]= useState(route);
   const [activeTab, setActiveTab] = useState(0);
   const tabs = [
     { label: '路線規劃' },
-    { label: '聊天室' }
+    { label: '聊天室' },
+    { label: '即時天氣預測' }
   ];
+  const [isChartVisible, setIsChartVisible] = useState(false);
 
   useEffect(() => {
 
@@ -306,9 +309,6 @@ const [routes, setRoutes]= useState(route);
     if (!chartContainer.current) {
       return;
     }
-
-   
-
     Object.keys(Chart.instances).forEach(key => {
       Chart.instances[key].destroy();
     });
@@ -424,6 +424,10 @@ const [routes, setRoutes]= useState(route);
     navigate('/dashboard');
   };
 
+  const toggleChartVisibility = () => {
+    setIsChartVisible(!isChartVisible);
+  };
+
   return (
     <div className="map-page">
       <div id='tab-box'>
@@ -445,26 +449,32 @@ const [routes, setRoutes]= useState(route);
             <div id="day-1">
             <div>第1天</div>
             <div id="walking-time"></div>
-            {/* 這裡可以添加更多的第1天的相關內容 */}
           </div>
           </div>
 
         )}
         {activeTab === 1 && (
              <div className='chat-widget-container'>   <ChatWidget room={room} /></div>
-            
-     
+        )}
+         {activeTab === 2 && (
+             <div >   <MapChart /></div>
         )}
    
       </div>
       </div>
       <div id="main-info">
         <div ref={mapContainer} id="map"></div>
-        <div id="chart-container">
+        <div id="chart-container" style={{ display: isChartVisible ? 'block' : 'none' }}>
+          <div id='chart-space'></div>
           <canvas ref={chartContainer} id="chart-canvas"></canvas>
         </div>
+        <div>
+          <button id='toggle-elvation-button' onClick={toggleChartVisibility}>{isChartVisible ? '海拔剖面圖' : '海拔剖面圖'}</button>
+          <i class="bi ms-1 bi-caret-up-fill"></i>
+        </div>
+        
+       
       </div>
-
     </div>
   );
 };

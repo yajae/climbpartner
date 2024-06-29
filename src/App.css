@@ -1,31 +1,29 @@
-/* 主要容器的樣式 */
+
 .container {
-  text-align: center; /* 使內容居中 */
+  text-align: center;
   padding: 20px;
 }
 
-/* 無序列表的樣式 */
 .nav-list {
-  list-style-type: none; /* 移除列表項前的圓點 */
+  list-style-type: none; 
   padding: 0;
   margin: 0;
-  display: flex; /* 使用彈性布局 */
-  justify-content: center; /* 在主軸上居中對齊 */
+  display: flex; 
+  justify-content: center; 
 }
 
-/* 列表項的樣式 */
 .nav-list li {
-  margin: 0 15px; /* 列表項之間的間距 */
+  margin: 0 15px; 
 }
 
-/* 連結的樣式 */
+
 .nav-list li a {
-  text-decoration: none; /* 移除下劃線 */
-  color: #4A148C; /* 連結文字顏色 */
-  font-size: 18px; /* 字體大小 */
-  font-weight: bold; /* 字體加粗 */
+  text-decoration: none; 
+  color: #4A148C; 
+  font-size: 18px; 
+  font-weight: bold;
 }
 
 .nav-list li a:hover {
-  text-decoration: underline; /* 滑鼠懸停時顯示下劃線 */
+  text-decoration: underline; 
 }

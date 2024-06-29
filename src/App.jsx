@@ -4,9 +4,10 @@ import React, { useState } from 'react';
 import './App.css';
 import AuthPage from './AuthPage';
 import MapPage from './MapPage';
-import Test from './test';
 import Dashboard from './Dashboard';
-import ChatWidget from './ChatWidget';
+// import Test from './test';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 function App() {
   const [isAuthenticated, setAuthenticated] = useState(false);
@@ -16,9 +17,9 @@ function App() {
     <Router>
       <nav className="container">
         <ul className="nav-list">
-          {/* <li>
-            <Link to="/">Test</Link>
-          </li> */}
+          <li>
+            <Link to="/test">Test</Link>
+          </li>
               <li>
             <Link to="/">登入</Link>
           </li>
@@ -48,7 +49,7 @@ function App() {
           }
         />
         <Route path='/' element={<AuthPage setAuthenticated={setAuthenticated} />} />
-        {/* <Route path='/' element={<Test isAuthenticated={isAuthenticated} />} /> */}
+        {/* <Route path='/test' element={<Test/>} /> */}
         <Route
           path='/dashboard'
           element={
