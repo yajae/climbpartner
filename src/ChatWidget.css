@@ -80,3 +80,25 @@
 .highlight {
   background-color: yellow;
 }
+
+.input-container {
+  position: relative;
+  width: 300px; 
+  margin: 20px;
+}
+.input-logo {
+  position: absolute;
+  left: 10px; 
+  top: 50%;
+  transform: translateY(-50%);
+  width: 8px;
+  height: 8px;
+  pointer-events: none; 
+}
+.input-container input {
+  width: 100%;
+  padding: 10px 10px 10px 40px; 
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}

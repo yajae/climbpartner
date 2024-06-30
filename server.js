@@ -151,15 +151,15 @@ app.get('/check-permission/:userId/:routeId', async (req, res) => {
       return res.status(404).json({ hasPermission: false });
     }
     console.log('path.permissions.type',path.permissions.type)
-    if (path.permissions.type === 'private' && userPath.userId !== Number(userId)) {
-        console.log('private false',typeof(userPath.userId),typeof(userId))
-      return res.status(403).json({ hasPermission: false });
-    }
+    // if (path.permissions.type === 'private' && userPath.userId !== Number(userId)) {
+    //     console.log('private false',typeof(userPath.userId),typeof(userId))
+    //   return res.status(403).json({ hasPermission: false });
+    // }
 
-    if (path.permissions.type === 'friends' && !path.permissions.friends.includes(new ObjectId(userId))) {
-        console.log('friends false')
-      return res.status(403).json({ hasPermission: false });
-    }
+    // if (path.permissions.type === 'friends' && !path.permissions.friends.includes(new ObjectId(userId))) {
+    //     console.log('friends false')
+    //   return res.status(403).json({ hasPermission: false });
+    // }
 
     res.status(200).json({ hasPermission: true });
   } catch (error) {

@@ -101,14 +101,15 @@ const ChatWidget = ({ room }) => {
   return (
     <div className="chat-widget">
       <div className="chat-box">
-        <div className="chat-header">
-          Chat
-        </div>
+      
         <div className="chat-content">
-          <div className="chat-search">
+          <div className="input-container">
+    
+        <img src="./marker.png" alt="Logo"className="input-logo" /> 
+        
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="搜尋聊天和信息"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -126,18 +127,16 @@ const ChatWidget = ({ room }) => {
             <div ref={messagesEndRef} /> 
           </div>
           <div className="chat-footer">
-            <div className="user-name">{username}</div>
+         
             <input
               type="text"
-              placeholder="Type a message"
+              placeholder="輸入訊息"
               value={message}
               onKeyDown={handleKeyPress}
               onChange={(e) => setMessage(e.target.value)}
               className="chat-input"
             />
-            <button onClick={sendMessage} className="chat-send-button">
-              Send
-            </button>
+         
           </div>
         </div>
       </div>

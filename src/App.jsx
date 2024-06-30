@@ -5,7 +5,7 @@ import './App.css';
 import AuthPage from './AuthPage';
 import MapPage from './MapPage';
 import Dashboard from './Dashboard';
-// import Test from './test';
+import Test from './test';
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 
@@ -17,9 +17,7 @@ function App() {
     <Router>
       <nav className="container">
         <ul className="nav-list">
-          <li>
-            <Link to="/test">Test</Link>
-          </li>
+       
               <li>
             <Link to="/">登入</Link>
           </li>
@@ -32,7 +30,9 @@ function App() {
           <li>
             <Link to="/weather">天氣預測</Link>
           </li>
-          
+          <li>
+            <Link to="/test">測試網頁</Link>
+          </li>
    
         </ul>
       </nav>
@@ -49,7 +49,7 @@ function App() {
           }
         />
         <Route path='/' element={<AuthPage setAuthenticated={setAuthenticated} />} />
-        {/* <Route path='/test' element={<Test/>} /> */}
+        <Route path='/test' element={<Test/>} />
         <Route
           path='/dashboard'
           element={

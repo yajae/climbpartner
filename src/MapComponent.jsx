@@ -1,42 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import Chart from 'chart.js/auto';
 import * as turf from '@turf/turf';
 import io from 'socket.io-client';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
-import { useLocation, useNavigate } from 'react-router-dom';
-import ChatWidget from './ChatWidget';
-import Tabs from './Tabs';
-import MapChart from './MapChart';
+import { useNavigate } from 'react-router-dom';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
 
-const MapPage = ({ isAuthenticated, setAuthenticated }) => {
+const MapComponent = ({ isAuthenticated, setAuthenticated, userId, routeId, room }) => {
   const mapContainer = useRef(null);
-  const chartContainer = useRef(null);
   const [map, setMap] = useState(null);
   const [markers, setMarkers] = useState([]);
-  const [chart, setChart] = useState(null);
   const socketRef = useRef(null);
-  const location = useLocation();
   const navigate = useNavigate();
-  const queryParams = new URLSearchParams(location.search);
-  const routeId = queryParams.get('routeId') || 1;
-  const userId = localStorage.getItem('userId');
-  const room = `${routeId}`;
-  const [activeTab, setActiveTab] = useState(0);
-  const tabs = [
-    { label: '路線規劃' },
-    { label: '聊天室' },
-    { label: '即時天氣預測' }
-  ];
-  const [isChartVisible, setIsChartVisible] = useState(false);
-  let markerCounter = 1;
-
+  
   useEffect(() => {
-    setAuthenticated(true);
-    const checkPermission = async (userId) => {
+    const checkPermission = async () => {
       try {
         const response = await fetch(`http://localhost:3000/check-permission/${userId}/${routeId}`, {
           method: 'GET',
@@ -50,7 +30,7 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
         console.error('Error checking permission:', error);
       }
     };
-    checkPermission(userId);
+    checkPermission();
   }, [setAuthenticated, navigate, routeId, userId]);
 
   useEffect(() => {
@@ -62,27 +42,25 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
           center: [121.5438, 25.19],
           zoom: 12
         });
-       
+
         mapInstance.on('style.load', () => {
           mapInstance.addSource('mapbox-dem', {
             type: 'raster-dem',
             url: 'mapbox://mapbox.mapbox-terrain-dem-v1',
             tileSize: 512,
-            maxzoom: 11
+            maxzoom: 20
           });
           mapInstance.setTerrain({ source: 'mapbox-dem', exaggeration: 1 });
 
           mapInstance.on('sourcedata', async (e) => {
             if (e.sourceId === 'mapbox-dem' && e.isSourceLoaded) {
-              await new Promise(resolve => setTimeout(resolve, 1000)); 
+              await new Promise(resolve => setTimeout(resolve, 700)); 
               setMap(mapInstance);
               mapInstance.on('click', handleClick);
             }
           });
         });
-        mapInstance.on('load', () => {
-            mapInstance.resize();
-        });
+
         const handleClick = async (e) => {
           try {
             const response = await fetch(
@@ -104,33 +82,7 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
 
             popup.getElement().querySelector('#add-button').addEventListener('click', () => {
               const markerData = { lng: e.lngLat.lng, lat: e.lngLat.lat, day: 1 };
-              var el = document.createElement('div');
-              el.className = 'marker';
-         
-              // Create a span element to hold the number
-              var number = document.createElement('span');
-              number.className = 'marker-number';
-              number.textContent = markerCounter++; // Set the number you want to display
-      
-
-              el.appendChild(number);
-            //   Object.assign(el.style, {
-            //     display: 'flex',
-            //     alignItems: 'center',
-            //     justifyContent: 'center',
-            //     width: '15px',
-            //     height: '15px',
-            //     backgroundColor: '#3b9ddd',
-            //     borderRadius: '50%',
-            //     color: 'white',
-            //     fontSize: '14px',
-            //     fontWeight: 'bold',
-            //     zIndex: 1,
-            //     top: '-20px'
-            //   });
-              const marker = new mapboxgl.Marker({   
-                element: el,
-                draggable: true})
+              const marker = new mapboxgl.Marker(<div className = 'marker'>113</div>)
                 .setLngLat([e.lngLat.lng, e.lngLat.lat])
                 .addTo(mapInstance);
               setMarkers((prevMarkers) => {
@@ -170,16 +122,16 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
       });
       socketRef.current.emit('join-room', room);
 
-    //   socketRef.current.on('new-marker', (newMarker) => {
-    //     const marker = new mapboxgl.Marker()
-    //       .setLngLat([newMarker.lngLat.lng, newMarker.lngLat.lat])
-    //       .addTo(map);
-    //     setMarkers((prevMarkers) => {
-    //       const newMarkers = [...prevMarkers, marker];
-    //       updatePath(newMarkers);
-    //       return newMarkers;
-    //     });
-    //   });
+      socketRef.current.on('new-marker', (newMarker) => {
+        const marker = new mapboxgl.Marker()
+          .setLngLat([newMarker.lngLat.lng, newMarker.lngLat.lat])
+          .addTo(map);
+        setMarkers((prevMarkers) => {
+          const newMarkers = [...prevMarkers, marker];
+          updatePath(newMarkers);
+          return newMarkers;
+        });
+      });
 
       socketRef.current.on('delete-marker', (lngLat) => {
         setMarkers((prevMarkers) => {
@@ -310,8 +262,8 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
 
     const totalDistance = (distance / 1000).toFixed(2); // distance in kilometers
 
-    document.getElementById('walking-time').innerText = `預估行走時間: ${estimatedTime}`;
-    document.getElementById('walking-distance').innerText = `總共行走距離: ${totalDistance} km`;
+    document.getElementById('walking-time').innerText = `Estimated walking time: ${estimatedTime}`;
+    document.getElementById('walking-distance').innerText = `Total distance: ${totalDistance} km`;
   };
 
   const updateElevationProfile = async (coordinates) => {
@@ -366,9 +318,11 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
         }),
         map.queryTerrainElevation(chunks[chunks.length - 1].geometry.coordinates[1])
       ];
+
       newChart.data.labels = elevations.map(() => '');
       newChart.data.datasets[0].data = elevations;
       newChart.update();
+
       calculateElevationGains(elevations);
 
     } else {
@@ -377,7 +331,6 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
       newChart.update();
     }
   };
-
 
   const calculateElevationGains = (elevations) => {
     let totalAscent = 0;
@@ -392,8 +345,8 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
       }
     }
 
-    document.getElementById('total-ascent').innerText = `總爬升高度: ${totalAscent.toFixed(2)} m`;
-    document.getElementById('total-descent').innerText = `總下坡高度: ${totalDescent.toFixed(2)} m`;
+    document.getElementById('total-ascent').innerText = `Total Ascent: ${totalAscent.toFixed(2)} m`;
+    document.getElementById('total-descent').innerText = `Total Descent: ${totalDescent.toFixed(2)} m`;
   };
 
   const createNewLabel = (marker, placeName) => {
@@ -421,69 +374,9 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
     document.getElementById('day-1').appendChild(newLabel);
   };
 
-  const handleSaveRoute = () => {
-    const routeName = document.getElementById('route-name').value;
-    const newRoute = {
-      name: routeName,
-      markers: markers.map(marker => marker.getLngLat().toArray()),
-    };
-    setRoutes([route, newRoute]);
-    navigate('/dashboard');
-  };
-
-  const toggleChartVisibility = () => {
-    setIsChartVisible(!isChartVisible);
-  };
-
   return (
-    <div className="map-page">
-      <div id='tab-box'>
-        <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
-        <div className="tab-content">
-          {activeTab === 0 && (
-            <div id="other-info">
-              <div className="form-container">
-                <div>
-                  <label htmlFor="route-name">路線名稱</label>
-                  <input type="text" id="route-name" placeholder="輸入路線名稱" />
-                </div>
-                <div>
-                  <label htmlFor="start-date">開始日期</label>
-                  <input type="date" id="start-date" />
-                </div>
-              </div>
-              <button onClick={handleSaveRoute}>保存路線</button>
-              <div id="day-1">
-              <small data-v-744c4d84="" className="separator fw-bold">第 1 天</small>
-  
-              </div>
-            </div>
-          )}
-          {activeTab === 1 && (
-            <div className='chat-widget-container'>   <ChatWidget room={room} /></div>
-          )}
-          {activeTab === 2 && (
-            <div >   <MapChart /></div>
-          )}
-        </div>
-      </div>
-      <div id="main-info">
-        <div ref={mapContainer} id="map"></div>
-        <div id="chart-container" style={{ display: isChartVisible ? 'block' : 'none' }}>
-          <div id='chart-space'></div>
-          <canvas ref={chartContainer} id="chart-canvas"></canvas>
-        </div>
-        <div id='under-map-info'>
-          <button id='toggle-elvation-button' onClick={toggleChartVisibility}>{isChartVisible ? '海拔剖面圖' : '海拔剖面圖'}</button>
-            <div id="walking-time"></div> 
-            <div id="walking-distance"></div> 
-            <div id="total-ascent"></div> 
-            <div id="total-descent"></div> 
-            <div className="metric-item"><small className="text-light text-tiny">預估時間 <i className="bi bi-question-circle"></i></small><h4 className="mb-0 fw-semibold">0 s</h4></div>
-        </div>
-      </div>
-    </div>
+    <div ref={mapContainer} id="map"></div>
   );
 };
 
-export default MapPage;
+export default MapComponent;
