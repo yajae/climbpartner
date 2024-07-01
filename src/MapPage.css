@@ -29,7 +29,7 @@
 
 #map {
     height: 100%;
-      width: 250%;
+      width: 100%;
   position: relative;
   z-index: 1;
 }
@@ -46,7 +46,7 @@
   z-index: 2;
 }
 #chart-space {
-  height: 135%; 
+  height: 210%; 
   width: 100%;
   position: relative; 
 }
@@ -90,7 +90,7 @@
 
 .tabs {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
   
 
 }
@@ -99,8 +99,13 @@
   height: 250px;
 }
 
+.tab-button {
+  background-color: #254f7c;
+
+}
+
 .tab-button.active {
-  border-bottom: 2px solid #104060;
+  border-bottom: 2px solid #246bb6;
   font-weight: bold;
 }
 
@@ -166,3 +171,108 @@
   font-weight: bold;
 }
 
+.schedule {
+  border: 1px solid #ccc;
+  padding: 0px;
+  border-radius: 3%;
+  width: 100%;
+  background-color: #fff;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  border-bottom: 1px solid #ccc;
+  background-color:rgb(164 206 239 / 20%);
+  position: relative;
+}
+
+.line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #ccc;
+  margin: 0 10px;
+}
+
+.day-number {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 0 10px;
+  background-color: #f9f9f9;
+  position: relative;
+  width: 60px;
+  z-index: 1;
+}
+
+.date-input, .time-input {
+  font-size: 14px;
+  color: #666;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px;
+  background-color: #fff;
+}
+
+.event {
+  display: flex;
+  align-items: center;
+  padding: 10px 0;
+  position: relative;
+}
+
+.time-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+}
+
+.time {
+  background-color: #1e66ae;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 12px;
+  text-align: center;
+  font-size: 12px;
+}
+
+input[type="radio"] {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.event-details {
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+}
+
+.event-number {
+  margin-right: 10px;
+}
+
+.event-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 150px;
+}
+
+.add-day {
+  background-color:  #2a66a1;
+  border: 1px solid #ccc;
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  margin-right: 30px;
+}
+
+.add-day:hover {
+  background-color: #5d0e0e;
+}

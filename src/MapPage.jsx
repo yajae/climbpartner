@@ -10,6 +10,7 @@ import ChatWidget from './ChatWidget';
 import Tabs from './Tabs';
 import MapChart from './MapChart';
 
+
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
 
 const MapPage = ({ isAuthenticated, setAuthenticated }) => {
@@ -32,6 +33,15 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
     { label: '即時天氣預測' }
   ];
   const [isChartVisible, setIsChartVisible] = useState(false);
+  const [dayCount, setDayCount] = useState(1);
+  const [schedule, setSchedule] = useState([
+    {
+      dayNumber: 1,
+      date: '',
+      time: '',
+      events: [{ time: '提示', name: '目前尚未設定行程，請點擊地圖新增行程' }]
+    }
+  ]);
   let markerCounter = 1;
 
   useEffect(() => {
@@ -96,7 +106,8 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
               .setLngLat(e.lngLat)
               .setHTML(
                 `<div>
-                  <p>placeName: ${data.features[0].place_name}</p>
+                  <p>經緯度: ${e.lngLat.lng},${e.lngLat.lat}</p>
+                  <p>地名: ${data.features[0].place_name}</p>
                   <button id="add-button" class="add-button">新增</button>
                 </div>`
               )
@@ -107,27 +118,13 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
               var el = document.createElement('div');
               el.className = 'marker';
          
-              // Create a span element to hold the number
               var number = document.createElement('span');
               number.className = 'marker-number';
-              number.textContent = markerCounter++; // Set the number you want to display
+              number.textContent = markerCounter++; 
       
 
               el.appendChild(number);
-            //   Object.assign(el.style, {
-            //     display: 'flex',
-            //     alignItems: 'center',
-            //     justifyContent: 'center',
-            //     width: '15px',
-            //     height: '15px',
-            //     backgroundColor: '#3b9ddd',
-            //     borderRadius: '50%',
-            //     color: 'white',
-            //     fontSize: '14px',
-            //     fontWeight: 'bold',
-            //     zIndex: 1,
-            //     top: '-20px'
-            //   });
+
               const marker = new mapboxgl.Marker({   
                 element: el,
                 draggable: true})
@@ -138,10 +135,24 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
                 updatePath(newMarkers);
                 return newMarkers;
               });
+
               popup.remove();
-              createNewLabel(marker, data.features[0].place_name);
-              socketRef.current.emit('new-marker', { room, userId, routeId: 1, lngLat: markerData });
+              setSchedule((prevSchedule) => {
+               const newSchedule=[...prevSchedule,{dayNumber: 1, date: '2024-07-01', time: '9:00', events: [{time: '9:00', name: data.features[0].place_name}]}]
+                return newSchedule;
+              });
+      
+              socketRef.current.emit('new-marker', { 
+                room,
+                userId, 
+                routeId,
+                lngLat: markerData,
+                placeName: data.features[0].place_name,
+                day:1,
+                time:'9:00'
             });
+            });
+            console.log('new-marker emitted',markers)
           } catch (error) {
             console.error('Error fetching geocoding data:', error);
           }
@@ -170,16 +181,17 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
       });
       socketRef.current.emit('join-room', room);
 
-    //   socketRef.current.on('new-marker', (newMarker) => {
-    //     const marker = new mapboxgl.Marker()
-    //       .setLngLat([newMarker.lngLat.lng, newMarker.lngLat.lat])
-    //       .addTo(map);
-    //     setMarkers((prevMarkers) => {
-    //       const newMarkers = [...prevMarkers, marker];
-    //       updatePath(newMarkers);
-    //       return newMarkers;
-    //     });
-    //   });
+      socketRef.current.on('new-marker', (newMarker) => {
+        console.log('create a new marker')
+        // const marker = new mapboxgl.Marker()
+        //   .setLngLat([newMarker.lngLat.lng, newMarker.lngLat.lat])
+        //   .addTo(map);
+        // setMarkers((prevMarkers) => {
+        //   const newMarkers = [...prevMarkers, marker];
+        //   updatePath(newMarkers);
+        //   return newMarkers;
+        // });
+      });
 
       socketRef.current.on('delete-marker', (lngLat) => {
         setMarkers((prevMarkers) => {
@@ -224,7 +236,7 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
           const marker1 = new mapboxgl.Marker()
             .setLngLat([marker.lng, marker.lat])
             .addTo(map);
-          createNewLabel(marker1, '已存在的标记');
+         
           return marker1;
         });
         setMarkers((prevMarkers) => {
@@ -232,6 +244,17 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
           return updatedMarkers;
         });
         updatePath();
+    
+        const newSchedule = latestMarkers.map((marker, index) => ({
+          dayNumber:   1,
+          date: marker.date || new Date().toISOString().split('T')[0],
+          time:  marker.time,
+          events: [{ time: marker.time, name: marker.placeName }],
+       }));
+      if(newMarkers.length!==0){
+        setSchedule(newSchedule);
+      }
+    
       } else {
         console.log('No markers to load or map is not ready');
       }
@@ -306,12 +329,11 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
     const totalMinutes = Math.round(duration / 60);
     const hours = Math.floor(totalMinutes / 60);
     const minutes = totalMinutes % 60;
-    const estimatedTime = `${hours} 小时 ${minutes} 分钟`;
+    const estimatedTime = `${hours} 小時 ${minutes} 分`;
 
-    const totalDistance = (distance / 1000).toFixed(2); // distance in kilometers
-
+    const totalDistance = (distance / 1000).toFixed(2); 
     document.getElementById('walking-time').innerText = `預估行走時間: ${estimatedTime}`;
-    document.getElementById('walking-distance').innerText = `總共行走距離: ${totalDistance} km`;
+    document.getElementById('walking-distance').innerText = `總共行走距離: ${totalDistance} 公里`;
   };
 
   const updateElevationProfile = async (coordinates) => {
@@ -415,10 +437,11 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
       if (socketRef.current) {
         socketRef.current.emit('delete-marker', { room, lngLat: { lng: marker.getLngLat().lng, lat: marker.getLngLat().lat } });
       }
+      
     };
 
     newLabel.appendChild(deleteButton);
-    document.getElementById('day-1').appendChild(newLabel);
+    document.getElementById('1-day').appendChild(newLabel);
   };
 
   const handleSaveRoute = () => {
@@ -435,28 +458,145 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
     setIsChartVisible(!isChartVisible);
   };
 
+  const updateTime = (index, event) => {
+    const newSchedule = [...schedule];
+    newSchedule[index].events[0].time = event.target.value;
+    setSchedule(newSchedule);
+  };
+
+  const addNextDay = () => {
+    const newDayCount = dayCount + 1;
+    setDayCount(newDayCount);
+    const newSchedule = [
+      ...schedule,
+      {
+        dayNumber: newDayCount,
+        date: new Date().toISOString().split('T')[0],
+        time: '08:00',
+        events: [{ time: '08:00', name: '地點名稱目前只對 Pr...' }],
+      },
+    ];
+    setSchedule(newSchedule);
+  };
+
+  useEffect(() => {
+    console.log('Current schedule:', schedule);
+
+  }, [schedule]);
+
+  // useEffect(() => {
+  //   const updateLabels = () => {
+  //     const labelContainer = document.getElementById('1-day');
+  //     if (labelContainer) {
+  //       console.log('schedule',schedule)
+  //       labelContainer.innerHTML = '';
+  //       schedule.forEach((item) => {
+  //         item.events.forEach((event, index) => {
+  //           const newLabel = document.createElement('div');
+  //           newLabel.innerHTML = `
+  //             <div>Place Name: ${event.name}</div>
+  //             <button class="delete-button" data-index="${index}">刪除</button>
+  //           `;
+  //           labelContainer.appendChild(newLabel);
+  
+  //           newLabel.querySelector('.delete-button').onclick = () => {
+  //             console.log('删除', index);
+  //             setMarkers((prevMarkers) => {
+  //               const updatedMarkers = prevMarkers.filter((m, i) => i !== index);
+  //               updatePath(updatedMarkers);
+  //               return updatedMarkers;
+  //             });
+  //             setSchedule((prevSchedule) => {
+  //               const newSchedule = [...prevSchedule];
+  //               newSchedule[day.dayNumber - 1].events = newSchedule[day.dayNumber - 1].events.filter((_, i) => i !== index);
+  //               return newSchedule;
+  //             });
+  //             socketRef.current.emit('delete-marker', { room, lngLat: markers[index].getLngLat() });
+  //           };
+  //         });
+  //       });
+  //     }
+  //   };
+  
+  //   updateLabels();
+  // }, [schedule, markers]);
+  
+  const handleDelete = (markerIndex) => {
+    const marker = markers[markerIndex];
+    console.log('onclick delete button')
+    if (marker) {
+      marker.remove();
+      setMarkers((prevMarkers) => {
+        const updatedMarkers = prevMarkers.filter((_, index) => index !== markerIndex);
+        updatePath(updatedMarkers);
+        return updatedMarkers;
+      });
+    
+      setSchedule((prevSchedule) => {
+        const newSchedule = prevSchedule.filter((_, scheduleIndex) => scheduleIndex !== markerIndex);
+        return newSchedule;
+      });
+      
+      if (socketRef.current) {
+        socketRef.current.emit('delete-marker', { room, lngLat: { lng: marker.getLngLat().lng, lat: marker.getLngLat().lat } });
+      }
+    }
+  }
+
   return (
     <div className="map-page">
       <div id='tab-box'>
         <Tabs tabs={tabs} activeTab={activeTab} setActiveTab={setActiveTab} />
         <div className="tab-content">
           {activeTab === 0 && (
-            <div id="other-info">
-              <div className="form-container">
-                <div>
-                  <label htmlFor="route-name">路線名稱</label>
-                  <input type="text" id="route-name" placeholder="輸入路線名稱" />
+            <div className="schedule">
+              {schedule.map((day, index) => (
+              
+                <div key={index}>
+                  {index === 0 && (
+                    <div className="day-header">
+                      <div className='route' required>路線名稱</div>
+                      <span className="day-number">第 {day.dayNumber} 天</span>
+                      <div className="line"></div>
+                      <input
+                        type="date"
+                        className="date-input"
+                        value={day.date}
+                        onChange={(e) => {
+                          const newSchedule = [...schedule];
+                          newSchedule[index].date = e.target.value;
+                          setSchedule(newSchedule);
+                        }}
+                      />
+                      <input
+                        type="time"
+                        className="time-input"
+                        value={day.time}
+                        onChange={(e) => updateTime(index, e)}
+                      />
+                    </div>
+                  )}
+                  <div className="event" id='1-day'>
+             
+                    <div className="time-container" id='1-day'>
+                      <div className="time">{day.events[0].time}</div>
+                    </div>
+                    <input type="radio" name={`event${day.dayNumber}`} />
+                    <div className="event-details">
+                      <span className="event-number">{index+1}</span>
+                      <span className="event-name">{day.events[0].name}</span>
+                      <button onClick={() => handleDelete(index)}>刪除</button>
+           
+                    </div>
+                 
+                  </div>
+                  {index === schedule.length - 1 && (
+                    <button className="add-day" onClick={addNextDay}>
+                      新增下一天
+                    </button>
+                  )}
                 </div>
-                <div>
-                  <label htmlFor="start-date">開始日期</label>
-                  <input type="date" id="start-date" />
-                </div>
-              </div>
-              <button onClick={handleSaveRoute}>保存路線</button>
-              <div id="day-1">
-              <small data-v-744c4d84="" className="separator fw-bold">第 1 天</small>
-  
-              </div>
+              ))}
             </div>
           )}
           {activeTab === 1 && (
@@ -475,15 +615,16 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
         </div>
         <div id='under-map-info'>
           <button id='toggle-elvation-button' onClick={toggleChartVisibility}>{isChartVisible ? '海拔剖面圖' : '海拔剖面圖'}</button>
-            <div id="walking-time"></div> 
-            <div id="walking-distance"></div> 
-            <div id="total-ascent"></div> 
-            <div id="total-descent"></div> 
-            <div className="metric-item"><small className="text-light text-tiny">預估時間 <i className="bi bi-question-circle"></i></small><h4 className="mb-0 fw-semibold">0 s</h4></div>
+          <div id="walking-time"></div>
+          <div id="walking-distance"></div>
+          <div id="total-ascent"></div>
+          <div id="total-descent"></div>
+          <div className="metric-item"><small className="text-light text-tiny">預估時間 <i className="bi bi-question-circle"></i></small><h4 className="mb-0 fw-semibold">0 s</h4></div>
         </div>
       </div>
     </div>
   );
+  
 };
 
 export default MapPage;

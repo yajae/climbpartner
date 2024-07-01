@@ -5,17 +5,15 @@ import { dirname, join } from 'node:path';
 import cors from 'cors';
 import path from 'path';
 import { Server } from 'socket.io';
-import mongoose from "mongoose";
 import cookieParser from 'cookie-parser';
-import conn from './connDb.js';
-const Schema = mongoose.Schema;
 const app = express();
 const server = createServer(app);
 const __dirname = dirname(fileURLToPath(import.meta.url));
+import { UserModel, UserPathModel, ChatMessage } from './model.js';
 
 app.use(express.json());
 app.use(cookieParser());
-const { ObjectId } = mongoose.Types;
+
 const corsOptions = {
     origin: 'http://localhost:5173',
     credentials: true
@@ -29,52 +27,8 @@ const io = new Server(server, {
         credentials: true
     }
 });
-
-const userSchema = new mongoose.Schema({
-    id: Number,
-    username: String,
-    password: String
-});
-
-const UserModel = conn.model('User', userSchema);
-
-const markerSchema = new mongoose.Schema({
-    lng: Number,
-    lat: Number,
-    day: Number
-});
-
-const pathSchema = new Schema({
-    routeId: Number,
-    markers: {
-        day1: [markerSchema],
-        day2: [markerSchema],
-        day3: [markerSchema],
-        day4: [markerSchema],
-        day5: [markerSchema]
-    },
-    permissions: {
-        type: { type: String, enum: ['private', 'friends', 'public'], required: true, default: 'private' },
-        friends: [{ type: Schema.Types.ObjectId, ref: 'User' }]
-    },
-    notes: String
-});
-
-const userPathSchema = new mongoose.Schema({
-    userId: Number,
-    paths: [pathSchema]
-});
-
-const UserPathModel = conn.model('UserPath', userPathSchema);
-
-const chatMessageSchema = new mongoose.Schema({
-    user: String,
-    message: String,
-    timestamp: { type: Date, default: Date.now },
-    room: String,
-  });
-  
-  const ChatMessage = conn.model('ChatMessage', chatMessageSchema);
+import mongoose from 'mongoose';
+const { ObjectId } = mongoose.Types;
 
 app.get('/api/user-paths/:userId', async (req, res) => {
     try {
@@ -216,18 +170,24 @@ io.on('connection', async (socket) => {
         });
 
     socket.on('new-marker', async (data) => {
-        const { lngLat ,userId,routeId,room} = data;
+        const {lngLat ,userId,routeId,room,placeName,day,time} = data;
+        const {lng,lat}=lngLat
+       
         const userPath = await UserPathModel.findOne({ userId });
-        const path = userPath.paths.find(p => p.routeId === parseInt(routeId));
+
+        const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
         if (path) {
-            path.markers.day1.push(lngLat);
+            path.markers.day1.push({lng,lat,placeName,day,time});
            const result = await userPath.save();  
+        }else{
+            console.log('沒有此routeId',routeId)
         }
         io.to(room).emit('new-marker', { lngLat });
     });
 
     socket.on('delete-marker', async (data) => {
         const { room, lngLat } = data;
+
         try {
                 const result= await UserPathModel.updateOne(
                 { 'paths.markers.day1.lng': lngLat.lng, 'paths.markers.day1.lat': lngLat.lat },
