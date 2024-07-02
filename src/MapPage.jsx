@@ -9,11 +9,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
 import Tabs from './Tabs';
 import MapChart from './MapChart';
-
+import trashIcon from './trash.png';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
 
-const MapPage = ({ isAuthenticated, setAuthenticated }) => {
+const MapPage = () => {
   const mapContainer = useRef(null);
   const chartContainer = useRef(null);
   const [map, setMap] = useState(null);
@@ -43,9 +43,12 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
     }
   ]);
   let markerCounter = 1;
+  const [currentTime, setCurrentTime] = useState('');
+  const [selectedEvent, setSelectedEvent] = useState({ dayIndex: 0, eventIndex: 0 });
+
 
   useEffect(() => {
-    setAuthenticated(true);
+ 
     const checkPermission = async (userId) => {
       try {
         const response = await fetch(`http://localhost:3000/check-permission/${userId}/${routeId}`, {
@@ -61,10 +64,10 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
       }
     };
     checkPermission(userId);
-  }, [setAuthenticated, navigate, routeId, userId]);
+  }, [navigate, routeId, userId]);
 
   useEffect(() => {
-    if (isAuthenticated) {
+
       const initializeMap = async () => {
         const mapInstance = new mapboxgl.Map({
           container: mapContainer.current,
@@ -164,8 +167,8 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
       };
 
       initializeMap();
-    }
-  }, [isAuthenticated]);
+    
+  }, []);
 
   useEffect(() => {
     if (map && markers.length > 0) {
@@ -174,7 +177,7 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
   }, [map, markers]);
 
   useEffect(() => {
-    if (map && isAuthenticated) {
+    if (map) {
       fetchInitialMarkers(userId);
       socketRef.current = io('http://localhost:3000', {
         withCredentials: true,
@@ -183,14 +186,7 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
 
       socketRef.current.on('new-marker', (newMarker) => {
         console.log('create a new marker')
-        // const marker = new mapboxgl.Marker()
-        //   .setLngLat([newMarker.lngLat.lng, newMarker.lngLat.lat])
-        //   .addTo(map);
-        // setMarkers((prevMarkers) => {
-        //   const newMarkers = [...prevMarkers, marker];
-        //   updatePath(newMarkers);
-        //   return newMarkers;
-        // });
+
       });
 
       socketRef.current.on('delete-marker', (lngLat) => {
@@ -216,7 +212,7 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
         socketRef.current.disconnect();
       };
     }
-  }, [map, isAuthenticated]);
+  }, [map]);
 
   const fetchInitialMarkers = async (userId) => {
     try {
@@ -454,15 +450,19 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
     navigate('/dashboard');
   };
 
+  const handleEventSelection = (dayIndex, eventIndex) => {
+    setSelectedEvent({ dayIndex, eventIndex });
+  };
   const toggleChartVisibility = () => {
     setIsChartVisible(!isChartVisible);
   };
 
-  const updateTime = (index, event) => {
+  const updateTime = (dayIndex, eventIndex, newTime) => {
     const newSchedule = [...schedule];
-    newSchedule[index].events[0].time = event.target.value;
+    newSchedule[dayIndex].events[eventIndex].time = newTime;
     setSchedule(newSchedule);
   };
+
 
   const addNextDay = () => {
     const newDayCount = dayCount + 1;
@@ -484,42 +484,6 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
 
   }, [schedule]);
 
-  // useEffect(() => {
-  //   const updateLabels = () => {
-  //     const labelContainer = document.getElementById('1-day');
-  //     if (labelContainer) {
-  //       console.log('schedule',schedule)
-  //       labelContainer.innerHTML = '';
-  //       schedule.forEach((item) => {
-  //         item.events.forEach((event, index) => {
-  //           const newLabel = document.createElement('div');
-  //           newLabel.innerHTML = `
-  //             <div>Place Name: ${event.name}</div>
-  //             <button class="delete-button" data-index="${index}">刪除</button>
-  //           `;
-  //           labelContainer.appendChild(newLabel);
-  
-  //           newLabel.querySelector('.delete-button').onclick = () => {
-  //             console.log('删除', index);
-  //             setMarkers((prevMarkers) => {
-  //               const updatedMarkers = prevMarkers.filter((m, i) => i !== index);
-  //               updatePath(updatedMarkers);
-  //               return updatedMarkers;
-  //             });
-  //             setSchedule((prevSchedule) => {
-  //               const newSchedule = [...prevSchedule];
-  //               newSchedule[day.dayNumber - 1].events = newSchedule[day.dayNumber - 1].events.filter((_, i) => i !== index);
-  //               return newSchedule;
-  //             });
-  //             socketRef.current.emit('delete-marker', { room, lngLat: markers[index].getLngLat() });
-  //           };
-  //         });
-  //       });
-  //     }
-  //   };
-  
-  //   updateLabels();
-  // }, [schedule, markers]);
   
   const handleDelete = (markerIndex) => {
     const marker = markers[markerIndex];
@@ -543,6 +507,13 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
     }
   }
 
+  useEffect(() => {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    setCurrentTime(`${hours}:${minutes}`);
+  }, []);
+
   return (
     <div className="map-page">
       <div id='tab-box'>
@@ -550,14 +521,34 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
         <div className="tab-content">
           {activeTab === 0 && (
             <div className="schedule">
+              <div className='route'>
+                <div>
+                  <div className='route-name' >路線名稱</div>
+                    <input 
+                        type="text" 
+                        value={'輸入路線名稱'}
+                        className='route-input'
+                    />
+                </div>
+                <div>
+                <div className='route-name' >日期</div>
+                  <input 
+                      type="text" 
+                      value={'輸入日期'}
+                      className='route-input'
+                  />
+                </div>
+                
+              </div>
               {schedule.map((day, index) => (
               
                 <div key={index}>
                   {index === 0 && (
                     <div className="day-header">
-                      <div className='route' required>路線名稱</div>
-                      <span className="day-number">第 {day.dayNumber} 天</span>
-                      <div className="line"></div>
+                 
+                     
+                        <span className="day-number">第 {day.dayNumber} 天</span>
+                        <div className="line"></div>
                       <input
                         type="date"
                         className="date-input"
@@ -571,9 +562,11 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
                       <input
                         type="time"
                         className="time-input"
-                        value={day.time}
-                        onChange={(e) => updateTime(index, e)}
+                        value={currentTime}
+                        onChange={(e) => updateTime(dayIndex, 0, e.target.value)}
                       />
+              
+                     
                     </div>
                   )}
                   <div className="event" id='1-day'>
@@ -581,12 +574,23 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
                     <div className="time-container" id='1-day'>
                       <div className="time">{day.events[0].time}</div>
                     </div>
-                    <input type="radio" name={`event${day.dayNumber}`} />
+                    <input
+                      type="radio"
+                      className={`event${day.dayNumber}`}
+                      checked={selectedEvent.dayIndex === 0 && selectedEvent.eventIndex === 0}
+                      onChange={() => handleEventSelection(0, 0)}
+                    />
                     <div className="event-details">
-                      <span className="event-number">{index+1}</span>
-                      <span className="event-name">{day.events[0].name}</span>
-                      <button onClick={() => handleDelete(index)}>刪除</button>
-           
+                      <div class="event-container">
+                        <span className="event-number">{index+1}</span>
+                        <span className="event-name">{day.events[0].name}</span>
+                      </div>
+                      <div>
+                        <button class="btn-icon" onClick={() => handleDelete(index)}> 
+                          <img src={trashIcon} alt="Trash Icon"/>
+                        </button>
+                      </div>
+                      
                     </div>
                  
                   </div>
@@ -600,10 +604,14 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
             </div>
           )}
           {activeTab === 1 && (
-            <div className='chat-widget-container'>   <ChatWidget room={room} /></div>
+            <div className='chat-widget-container'>   
+              <ChatWidget room={room} />
+            </div>
           )}
           {activeTab === 2 && (
-            <div >   <MapChart /></div>
+            <div> 
+              <MapChart />
+            </div>
           )}
         </div>
       </div>
@@ -619,7 +627,6 @@ const MapPage = ({ isAuthenticated, setAuthenticated }) => {
           <div id="walking-distance"></div>
           <div id="total-ascent"></div>
           <div id="total-descent"></div>
-          <div className="metric-item"><small className="text-light text-tiny">預估時間 <i className="bi bi-question-circle"></i></small><h4 className="mb-0 fw-semibold">0 s</h4></div>
         </div>
       </div>
     </div>

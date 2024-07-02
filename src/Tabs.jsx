@@ -3,16 +3,18 @@ import React, { useState } from 'react';
 const Tabs = ({ tabs, activeTab, setActiveTab }) => {
   return (
     <div className="tabs">
-      {tabs.map((tab, index) => (
+    {tabs.map((tab, index) => (
+      <React.Fragment key={index}>
         <button
-          key={index}
           className={`tab-button ${activeTab === index ? 'active' : ''}`}
           onClick={() => setActiveTab(index)}
         >
           {tab.label}
         </button>
-      ))}
-    </div>
+        {index < tabs.length - 1 && <div className="divider"></div>}
+      </React.Fragment>
+    ))}
+  </div>
   );
 };
 

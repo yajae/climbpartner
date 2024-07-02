@@ -22,6 +22,9 @@ const markerSchema = new mongoose.Schema({
 
 const pathSchema = new Schema({
     routeId: Number,
+    routeName: String,
+    startTime: String,
+    endTime: String,
     markers: {
         day1: [markerSchema],
         day2: [markerSchema],

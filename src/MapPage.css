@@ -13,13 +13,14 @@
 .map-page {
   display: flex;
   justify-content: space-evenly;
-  width: 100%;
+  width: 95%;
   height: 800px;
-  
+  margin: auto;
 }
 
 
 #main-info {
+  margin-top: 15px;
   width: 100%;
   height: 100%;
   display: flex;
@@ -28,8 +29,8 @@
 }
 
 #map {
-    height: 100%;
-      width: 100%;
+  height: 100%;
+  width: 100%;
   position: relative;
   z-index: 1;
 }
@@ -87,35 +88,75 @@
   display: flex;
   flex-direction: column;
 }
-
 .tabs {
   display: flex;
-  justify-content: space-around;
-  
+  align-items: center;
+  justify-content: space-evenly;
 
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.tab-button {
+  padding: 10px 20px;
+  border: none;
+  background-color: rgb(164 206 239 / 20%);
+  color: gray;
+  cursor: pointer;
+  font-family: 'Open Sans', sans-serif;
+  font-size: 1.1em;
+  font-weight: bold;
+  transition: background-color 0.3s, color 0.3s;
+  border-radius: 10px 10px 0 0; /* Rounded top corners */
+  margin: 15px ; /* Space between tabs */
+}
+
+.tab-button:hover {
+  background-color: #e0e0e0;
+}
+
+.tab-button:focus {
+  outline: none;
+}
+
+.tab-button:disabled {
+  background-color: #f1f1f1;
+  color: #c0c0c0;
+  cursor: not-allowed;
 }
 #tab-box {
   width: 40%;
   height: 250px;
 }
 
-.tab-button {
-  background-color: #254f7c;
-
-}
+/* .tab-button {
+  background-color: #254f7c00;
+  color:gray;
+  margin-bottom: 0px;
+} */
 
 .tab-button.active {
   border-bottom: 2px solid #246bb6;
+  color: white;
+  background-color: #246bb6;
   font-weight: bold;
 }
+
+/* .tab-button:hover {
+  background-color: #246bb6;
+  color: white; 
+} */
 
 .tab-content {
   display: flex;
   flex-direction: column;
   padding: 20px;
-  width: 450px; 
+  padding-top: 10px;
+  width: 500px; 
   height:900px;
   box-sizing: border-box;
+  margin: auto;
 }
 
 #chat-box {
@@ -123,7 +164,7 @@
   height: 250px;
 }
 
-.toggle-elevation-button {
+#toggle-elevation-button {
   padding: 10px;
   width: 150px;
   background: #254f7c;
@@ -135,23 +176,21 @@
 }
 
 
-#toggle-elvation-button{
+/* #toggle-elvation-button{
   width: 150px;
-}
+} */
 
 #under-map-info {
   display: flex; 
   align-items: center; 
   justify-content: space-between; 
-  font-size: 12px; 
+  font-size: 20px; 
 }
 #under-map-info > div {
   margin-right: 10px;
 }
 
-#toggle-elvation-button {
-  margin-right: 10px; 
-}
+
 .marker {
   position: absolute;
   width: 60px;
@@ -180,7 +219,7 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.day-header {
+.day-header,.route {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -197,7 +236,7 @@
   margin: 0 10px;
 }
 
-.day-number {
+.day-number,.route-name {
   font-size: 16px;
   font-weight: bold;
   padding: 0 10px;
@@ -206,14 +245,33 @@
   width: 60px;
   z-index: 1;
 }
-
-.date-input, .time-input {
+.route-name {
+  font-size: 16px;
+  font-weight: bold;
+  padding: 0 10px;
+  background-color: #f9f9f9;
+  position: relative;
+  width: 75px;
+  z-index: 1;
+}
+.date-input {
   font-size: 14px;
   color: #666;
   border: 1px solid #ccc;
   border-radius: 4px;
   padding: 5px;
   background-color: #fff;
+  
+}
+.time-input{
+  font-size: 14px;
+  color: #666;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  padding: 5px ;
+  background-color: #fff;
+  width: 125px;
+  margin-left: 5px;
 }
 
 .event {
@@ -248,17 +306,28 @@ input[type="radio"] {
   flex-grow: 1;
   display: flex;
   align-items: center;
+  justify-content: space-between;
 }
 
+.event-container {
+  display: flex;
+  align-items: center;
+
+}
 .event-number {
   margin-right: 10px;
-}
+  font-weight: bold;
+  background-color: #39654ddb;
+  color: white;
+  padding: 8px;
 
+}
 .event-name {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 150px;
+  display: inline-block;
+  max-width: 260px;
 }
 
 .add-day {
@@ -275,4 +344,25 @@ input[type="radio"] {
 
 .add-day:hover {
   background-color: #5d0e0e;
+}
+.btn-icon {
+  background-color: #5579a057;
+  color: white;
+  border: none;
+  padding: 5px 8px;
+  
+  cursor: pointer;
+  border-radius: 5px;
+  margin-right: 6.5px;
+}
+.divider {
+  width: 1px;
+  height: 20px;
+  background-color: #807b7b8e;
+  margin: auto 10px;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
 }

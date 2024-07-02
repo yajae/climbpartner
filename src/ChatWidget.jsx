@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import './ChatWidget.css';
+import markerIcon from './search.png';
 
 const socket = io('http://localhost:3000', {
   withCredentials: true,
@@ -104,8 +105,8 @@ const ChatWidget = ({ room }) => {
       
         <div className="chat-content">
           <div className="input-container">
-    
-        <img src="./marker.png" alt="Logo"className="input-logo" /> 
+          <img src={markerIcon} alt="Marker Icon" className="input-logo"/>
+
         
             <input
               type="text"
