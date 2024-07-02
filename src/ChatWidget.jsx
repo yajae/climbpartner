@@ -29,6 +29,7 @@ const ChatWidget = ({ room }) => {
     }
 
     socket.on('receiveMessage', (data) => {
+      console.log('receiveMessage')
       setMessages((premsgs) => {
         const newmsgs = [...(premsgs || []), data];
         return newmsgs;
@@ -57,7 +58,7 @@ const ChatWidget = ({ room }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/chat-messages/${room}`);
+      const response = await fetch(`http://localhost:3000/route/chat-messages/${room}`);
       const data = await response.json();
       setMessages(Array.isArray(data) ? data : []);
       setFilteredMessages(Array.isArray(data) ? data : []);

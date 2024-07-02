@@ -8,14 +8,14 @@ const PermissionModal = ({ route, onClose, onPermissionsChange }) => {
   const [shareLink, setShareLink] = useState('');
   const userId = localStorage.getItem('userId');
   const generateShareLink = (routeId) => {
-    const link = `${window.location.origin}/map?routeId=${routeId}`;
+    const link = `${window.location.origin}/route/map?routeId=${routeId}`;
     setShareLink(link);
     alert(`分享此連結給朋友: ${link}`);
   };
 
   const handleSave = async () => {
     try {
-      await axios.post('http://localhost:3000/update-permissions', {
+      await axios.post('http://localhost:3000/route/update-permissions', {
         userId: userId, 
         routeId: route.routeId, 
         permissionType: permission,

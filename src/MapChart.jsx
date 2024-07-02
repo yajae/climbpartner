@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-const apiKey = 'CWA-470BABA2-7EE9-45E7-9E55-C5FF8DEE1DB2';
+const apiKey = 'CWA-9A3F8A8F-6668-4912-A811-A641887E137A';
 const apiUrl = `http://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${apiKey}&limit=1000`;
 
 const extractData = (data, locationName, elementName) => {

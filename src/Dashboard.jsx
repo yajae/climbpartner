@@ -5,7 +5,7 @@ import axios from 'axios';
 import PermissionModal from './PermissionModal'; 
 import Cookies from 'js-cookie';
 
-const Dashboard = ({ routes, setRoutes }) => {
+const Dashboard = () => {
 
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -14,15 +14,16 @@ const Dashboard = ({ routes, setRoutes }) => {
   const userIdnumber =  localStorage.getItem('userId');
   const [userId, setUserId] = useState(userIdnumber);
   const id = localStorage.getItem('userId');
-  
+  const [routes, setRoutes] = useState([]);
   useEffect(() => {
     console.log('localStorage.getItem', localStorage.getItem('userId'));
     setUserId(id);
 
     const fetchRoutes = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/api/user-paths/${id}`);
+        const response = await axios.get(`http://localhost:3000/route/user-paths/${id}`);
         setRoutes(response.data);
+        console.log('route',response.data)
       } catch (error) {
         console.error('Error fetching user routes', error);
       }
@@ -65,6 +66,24 @@ const Dashboard = ({ routes, setRoutes }) => {
     }
   };
 
+  const handleCreateNewRoute = async () => {
+    try {
+      const response = await axios.post('http://localhost:3000/route/create-route', {
+        userId,
+        routeName: '新路線'
+      });
+
+      const newRouteId = response.data.routeId;
+      if(newRouteId){
+        navigate(`/map?routeId=${newRouteId}`);
+      }
+      console.log('no newRouteid')
+      
+    } catch (error) {
+      console.error('Error creating new route', error);
+    }
+  };
+
   return (
     <div className="dashboard-container">
       <h1>我的路線</h1>
@@ -76,9 +95,9 @@ const Dashboard = ({ routes, setRoutes }) => {
           {routes.map((route, index) => (
             <li key={index}>
               <div className="route-info">
-                <div>{route.name || '路線名稱'}</div>
-                <div>{route.date || '日期'}</div>
-                <div>權限: {getPermissionLabel(route.permissions.type)}</div>
+                <div>路線名稱:  {route.routeName || '路線名稱'}</div>
+                <div>日期:  {route.date || '日期'}</div>
+                <div>權限:  {getPermissionLabel(route.permissions.type)}</div>
               </div>
               <div className="buttons">
                 <button onClick={() => handleUpdateRoute(route)}>更新路線</button>
@@ -89,7 +108,7 @@ const Dashboard = ({ routes, setRoutes }) => {
         </ul>
       )}
       <div className='container'>
-        <button>
+        <button onClick={handleCreateNewRoute}>
           <Link to="/map">新增路線</Link>
         </button>
       </div>

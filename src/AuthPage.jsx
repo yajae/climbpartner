@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import Cookies from 'js-cookie';
 import './AuthPage.css';
 
-const AuthPage = ({ setAuthenticated }) => {
+const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +18,7 @@ const AuthPage = ({ setAuthenticated }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const url = isLogin ? '/login' : '/register';
-    const response = await fetch(`http://localhost:3000${url}`, {
+    const response = await fetch(`http://localhost:3000/api${url}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -28,7 +28,7 @@ const AuthPage = ({ setAuthenticated }) => {
     });
     const data = await response.json();
     if (data.success) {
-      setAuthenticated(true);
+
       localStorage.setItem('userId', data.userId);
       navigate('/dashboard', { state: { userId: data.userId } });
     } else {

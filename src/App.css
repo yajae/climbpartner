@@ -60,3 +60,28 @@
   background-color: #7e9287;
   border-top: 1px solid #ddd;
 }
+/* 設置頁面大小 */
+html, body {
+  width: 1400px;
+  height: 900px;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+ /* 防止滾動條出現 */
+}
+
+/* 確保 React 根元素填滿整個頁面 */
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* 設置容器大小 */
+.container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

@@ -23,7 +23,7 @@ const MapPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const queryParams = new URLSearchParams(location.search);
-  const routeId = queryParams.get('routeId') || 1;
+  const routeId = queryParams.get('routeId') ;
   const userId = localStorage.getItem('userId');
   const room = `${routeId}`;
   const [activeTab, setActiveTab] = useState(0);
@@ -34,7 +34,7 @@ const MapPage = () => {
   ];
   const [isChartVisible, setIsChartVisible] = useState(false);
   const [dayCount, setDayCount] = useState(1);
-  const [schedule, setSchedule] = useState([
+  const [schedule, setSchedule] = useState([ 
     {
       dayNumber: 1,
       date: '',
@@ -45,13 +45,18 @@ const MapPage = () => {
   let markerCounter = 1;
   const [currentTime, setCurrentTime] = useState('');
   const [selectedEvent, setSelectedEvent] = useState({ dayIndex: 0, eventIndex: 0 });
-
-
+  const [routeName, setRouteName] = useState('請輸入路線名稱');
+  const [startDate, setStartDate] = useState('');
+  
   useEffect(() => {
  
     const checkPermission = async (userId) => {
+      if(!routeId){
+        console.log('no routeId')
+        return
+      }
       try {
-        const response = await fetch(`http://localhost:3000/check-permission/${userId}/${routeId}`, {
+        const response = await fetch(`http://localhost:3000/route/check-permission/${userId}/${routeId}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -111,7 +116,7 @@ const MapPage = () => {
                 `<div>
                   <p>經緯度: ${e.lngLat.lng},${e.lngLat.lat}</p>
                   <p>地名: ${data.features[0].place_name}</p>
-                  <button id="add-button" class="add-button">新增</button>
+                  <button id="add-button" className="add-button">新增</button>
                 </div>`
               )
               .addTo(mapInstance);
@@ -134,6 +139,7 @@ const MapPage = () => {
                 .setLngLat([e.lngLat.lng, e.lngLat.lat])
                 .addTo(mapInstance);
               setMarkers((prevMarkers) => {
+
                 const newMarkers = [...prevMarkers, marker];
                 updatePath(newMarkers);
                 return newMarkers;
@@ -141,6 +147,11 @@ const MapPage = () => {
 
               popup.remove();
               setSchedule((prevSchedule) => {
+                console.log('prev',prevSchedule)
+                if(prevSchedule[0].time===''){
+                  const newSchedule=[{dayNumber: 1, date: '2024-07-01', time: '9:00', events: [{time: '9:00', name: data.features[0].place_name}]}]
+                  return newSchedule;
+                }
                const newSchedule=[...prevSchedule,{dayNumber: 1, date: '2024-07-01', time: '9:00', events: [{time: '9:00', name: data.features[0].place_name}]}]
                 return newSchedule;
               });
@@ -152,7 +163,9 @@ const MapPage = () => {
                 lngLat: markerData,
                 placeName: data.features[0].place_name,
                 day:1,
-                time:'9:00'
+                time:'9:00',
+                routeName,
+                startDate
             });
             });
             console.log('new-marker emitted',markers)
@@ -183,7 +196,7 @@ const MapPage = () => {
         withCredentials: true,
       });
       socketRef.current.emit('join-room', room);
-
+      
       socketRef.current.on('new-marker', (newMarker) => {
         console.log('create a new marker')
 
@@ -216,7 +229,7 @@ const MapPage = () => {
 
   const fetchInitialMarkers = async (userId) => {
     try {
-      const response = await fetch(`http://localhost:3000/markers/latest/${userId}/${routeId}`, {
+      const response = await fetch(`http://localhost:3000/route/markers/latest/${userId}/${routeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -228,7 +241,11 @@ const MapPage = () => {
       }
       const latestMarkers = await response.json();
       if (map) {
-        const newMarkers = latestMarkers.map((marker) => {
+        console.log('late',latestMarkers)
+        if(latestMarkers.routeName){
+          setRouteName(latestMarkers.routeName);
+        }
+        const newMarkers = latestMarkers.markers.day1.map((marker) => {
           const marker1 = new mapboxgl.Marker()
             .setLngLat([marker.lng, marker.lat])
             .addTo(map);
@@ -241,7 +258,7 @@ const MapPage = () => {
         });
         updatePath();
     
-        const newSchedule = latestMarkers.map((marker, index) => ({
+        const newSchedule = latestMarkers.markers.day1.map((marker, index) => ({
           dayNumber:   1,
           date: marker.date || new Date().toISOString().split('T')[0],
           time:  marker.time,
@@ -526,17 +543,28 @@ const MapPage = () => {
                   <div className='route-name' >路線名稱</div>
                     <input 
                         type="text" 
-                        value={'輸入路線名稱'}
+                        value={routeName}
                         className='route-input'
+                        onChange={(e) => {
+                          const newRouteName = e.target.value
+                          console.log('newRouteName',newRouteName)
+                          setRouteName(newRouteName);
+                          console.log('routeName',routeName)
+                        }}
                     />
                 </div>
                 <div>
                 <div className='route-name' >日期</div>
-                  <input 
-                      type="text" 
-                      value={'輸入日期'}
-                      className='route-input'
-                  />
+                <input
+                        type="date"
+                        className="date-input"
+                        value={startDate}
+                        onChange={(e) => {
+                          const newStartDate = startDate;
+                          newStartDate = e.target.value;
+                          setStartDate(newStartDate);
+                        }}
+                      />
                 </div>
                 
               </div>
@@ -549,16 +577,7 @@ const MapPage = () => {
                      
                         <span className="day-number">第 {day.dayNumber} 天</span>
                         <div className="line"></div>
-                      <input
-                        type="date"
-                        className="date-input"
-                        value={day.date}
-                        onChange={(e) => {
-                          const newSchedule = [...schedule];
-                          newSchedule[index].date = e.target.value;
-                          setSchedule(newSchedule);
-                        }}
-                      />
+                    
                       <input
                         type="time"
                         className="time-input"
@@ -581,12 +600,12 @@ const MapPage = () => {
                       onChange={() => handleEventSelection(0, 0)}
                     />
                     <div className="event-details">
-                      <div class="event-container">
+                      <div className="event-container">
                         <span className="event-number">{index+1}</span>
                         <span className="event-name">{day.events[0].name}</span>
                       </div>
                       <div>
-                        <button class="btn-icon" onClick={() => handleDelete(index)}> 
+                        <button className="btn-icon" onClick={() => handleDelete(index)}> 
                           <img src={trashIcon} alt="Trash Icon"/>
                         </button>
                       </div>

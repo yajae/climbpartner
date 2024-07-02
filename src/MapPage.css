@@ -98,7 +98,7 @@
   list-style: none;
 }
 
-.tab-button {
+.tab-button ,#toggle-elevation-button {
   padding: 10px 20px;
   border: none;
   background-color: rgb(164 206 239 / 20%);
@@ -365,4 +365,8 @@ input[type="radio"] {
 html, body {
   height: 100%;
   margin: 0;
+}
+
+.mapboxgl-popup-close-button {
+  width: 16px;
 }

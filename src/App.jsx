@@ -10,7 +10,7 @@ import logo from './logo.png'; // 將您的logo圖片路徑修改為實際路徑
 // import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
-  const [isAuthenticated, setAuthenticated] = useState(false);
+ 
   const [routes, setRoutes] = useState([]);
 
   return (
@@ -44,14 +44,15 @@ function App() {
               path='/map'
               element={
                 <MapPage
-                  isAuthenticated={isAuthenticated}
-                  setAuthenticated={setAuthenticated}
+                
+            
                   setRoutes={setRoutes}
                   routes={routes}
                 />
               }
             />
-            <Route path='/' element={<AuthPage setAuthenticated={setAuthenticated} />} />
+            <Route path='/' element={<AuthPage  />} />
+            <Route path='/auth' element={<AuthPage  />} />
             <Route path='/test' element={<Test />} />
             <Route
               path='/dashboard'
