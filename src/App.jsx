@@ -28,13 +28,13 @@ function App() {
               <li>
                 <Link to="/dashboard">路線紀錄</Link>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/map">登山路線規劃</Link>
               </li>
         
               <li>
                 <Link to="/test">測試網頁</Link>
-              </li>
+              </li> */}
             </ul>
           </nav>
         </header>

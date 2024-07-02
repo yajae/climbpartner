@@ -18,7 +18,7 @@ const AuthPage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     const url = isLogin ? '/login' : '/register';
-    const response = await fetch(`http://localhost:3000/api${url}`, {
+    const response = await fetch(`/api${url}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
