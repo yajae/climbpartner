@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Cookies from 'js-cookie';
 import './AuthPage.css';
 
 const AuthPage = () => {
