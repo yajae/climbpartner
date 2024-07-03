@@ -24,3 +24,5 @@ node_modules
 *.sw?
 test.css
 test.jsx
+s3.js
+.env

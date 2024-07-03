@@ -1,7 +1,8 @@
 import mongoose from 'mongoose';
+import dotenv from 'dotenv';
+dotenv.config();
 
-
-const conn = mongoose.createConnection("mongodb://0.0.0.0:27017/");
+const conn = mongoose.createConnection(process.env.Mognodb_URL);
 
 conn.on("connected" , ()=>{
   console.log("MongoDB is connected.");
