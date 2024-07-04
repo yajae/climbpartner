@@ -49,7 +49,12 @@ io.on('connection', async (socket) => {
         const { lng, lat } = lngLat;
 
         const userPath = await UserPathModel.findOne({ userId });
-
+        if (!userPath) {
+           const userPath = new UserPathModel({
+              userId: userId,
+              paths: []
+            });
+          }
         const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
         if (path) {
             console.log('routeName',routeName)

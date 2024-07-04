@@ -6,9 +6,13 @@ export const getUserPaths = async (req, res) => {
     try {
         const userId = req.params.userId;
         const userPaths = await UserPathModel.findOne({ userId }).populate('paths.permissions.friends');
-        console.log('userID')
+
         if (!userPaths) {
-            return res.status(404).json({ message: 'No paths found for this user' });
+            userPaths = new UserPathModel({
+                userId: userId,
+                paths: []
+            });
+            await userPaths.save();
         }
         
         res.json(userPaths.paths);
@@ -53,6 +57,10 @@ export const saveUserPath = async (req, res) => {
 export const getLatestMarkers = async (req, res) => {
     try {
         const { userId, routeId } = req.params;
+        if (!ObjectId.isValid(routeId)) {
+            return res.status(400).json({ success: false, message: 'Invalid routeId' });
+        }
+        console.log('roomid',roomId)
         const userPath = await UserPathModel.findOne({ 'paths._id': new ObjectId(routeId) });
         if (!userPath) {
             return res.status(404).json({ error: 'User path not found' });
@@ -136,17 +144,20 @@ export const checkPermission = async (req, res) => {
 
 export const createNewRoute = async (req, res) => {
     const { userId, routeName } = req.body;
-
+    console.log('creating new route')
     if (!userId ) {
         return res.status(400).json({ message: 'Invalid request' });
     }
 
     try {
-        let userPath = await UserPathModel.findOne({ userId });
+        const userPath = await UserPathModel.findOne({ userId });
 
-        if (!userPath) {
-            return res.status(400).json({ message: 'Please signup' });
-        }
+        // if (!userPath) {
+        //     const userPath = new UserPathModel({
+        //        userId: userId,
+        //        paths: []
+        //      });
+        //    }
 
         const newRoute = {
             routeName,
@@ -154,9 +165,10 @@ export const createNewRoute = async (req, res) => {
             markers: {},
             permissions: { type: 'private', friends: [] }
         };
-
+        console.log('creating new route')
         userPath.paths.push(newRoute);
         const result = await userPath.save();
+        
         const _id = result.paths[result.paths.length-1]._id;
         console.log('result',result.paths[result.paths.length-1]._id)
         res.status(201).json({ routeId: _id }); 

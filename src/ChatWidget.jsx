@@ -58,7 +58,7 @@ const ChatWidget = ({ room }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch(`/route/chat-messages/${room}`);
+      const response = await fetch(`http://localhost:3000/route/chat-messages/${room}`);
       const data = await response.json();
       setMessages(Array.isArray(data) ? data : []);
       setFilteredMessages(Array.isArray(data) ? data : []);

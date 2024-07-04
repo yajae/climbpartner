@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Dashboard.css';  
 import axios from 'axios';
 import PermissionModal from './PermissionModal'; 
-import Cookies from 'js-cookie';
+
 
 const Dashboard = () => {
 
@@ -21,7 +21,7 @@ const Dashboard = () => {
 
     const fetchRoutes = async () => {
       try {
-        const response = await axios.get(`/route/user-paths/${id}`);
+        const response = await axios.get(`http://localhost:3000/route/user-paths/${id}`);
         setRoutes(response.data);
         console.log('route',response.data)
       } catch (error) {
@@ -68,12 +68,13 @@ const Dashboard = () => {
 
   const handleCreateNewRoute = async () => {
     try {
-      const response = await axios.post('/route/create-route', {
+      const response = await axios.post('http://localhost:3000/route/create-route', {
         userId,
         routeName: '新路線'
       });
-
+      console.log(response.data.routeId)
       const newRouteId = response.data.routeId;
+      
       if(newRouteId){
         navigate(`/map?routeId=${newRouteId}`);
       }
@@ -109,7 +110,7 @@ const Dashboard = () => {
       )}
       <div className='container'>
         <button onClick={handleCreateNewRoute}>
-          <Link to="/map">新增路線</Link>
+          新增路線
         </button>
       </div>
     

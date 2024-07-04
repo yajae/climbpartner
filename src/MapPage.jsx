@@ -56,7 +56,7 @@ const MapPage = () => {
         return
       }
       try {
-        const response = await fetch(`/route/check-permission/${userId}/${routeId}`, {
+        const response = await fetch(`http://localhost:3000/route/check-permission/${userId}/${routeId}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -192,7 +192,7 @@ const MapPage = () => {
   useEffect(() => {
     if (map) {
       fetchInitialMarkers(userId);
-      socketRef.current = io('', {
+      socketRef.current = io('http://localhost:3000', {
         withCredentials: true,
       });
       socketRef.current.emit('join-room', room);
@@ -229,7 +229,7 @@ const MapPage = () => {
 
   const fetchInitialMarkers = async (userId) => {
     try {
-      const response = await fetch(`/route/markers/latest/${userId}/${routeId}`, {
+      const response = await fetch(`http://localhost:3000/route/markers/latest/${userId}/${routeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
