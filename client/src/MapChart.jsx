@@ -18,7 +18,7 @@ const extractData = (data, locationName, elementName) => {
 
 const MapChart = () => {
   const [data, setData] = useState(null);
-  const [locationName, setLocationName] = useState("嘉義縣");
+  const [locationName, setLocationName] = useState("新北市");
   const [chartData, setChartData] = useState({});
 
   useEffect(() => {

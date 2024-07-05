@@ -586,7 +586,7 @@ const MapPage = () => {
                   )}
                   <div className="event" id='1-day'>
              
-                    <div className="time-container" id='1-day'>
+                    {/* <div className="time-container" id='1-day'>
                       <div className="time">{day.events[0].time}</div>
                     </div>
                     <input
@@ -594,7 +594,7 @@ const MapPage = () => {
                       className={`event${day.dayNumber}`}
                       checked={selectedEvent.dayIndex === 0 && selectedEvent.eventIndex === 0}
                       onChange={() => handleEventSelection(0, 0)}
-                    />
+                    /> */}
                     <div className="event-details">
                       <div className="event-container">
                         <span className="event-number">{index+1}</span>
