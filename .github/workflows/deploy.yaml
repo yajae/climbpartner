@@ -13,12 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Debug Secrets
-        run: |
-          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_S3_ACCESSKEYID }}"
-          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_S3_SECRETACCESSKEY }}"
-          echo "AWS_REGION=${{ secrets.AWS_EC2_REGION }}"
-
       - name: Set up Node.js for server
         uses: actions/setup-node@v3
         with:
@@ -44,25 +38,26 @@ jobs:
           cd client
           npm run build
 
-      - name: List client/dist files
+      - name: List client/build files
         run: |
-          ls -la client/dist
-   
+          ls -la client/build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          aws-access-key-id: ${{ secrets.AWS_S3_ACCESSKEYID }}
-          aws-secret-access-key: ${{ secrets.AWS_S3_SECRETACCESSKEY }}
-          aws-region: ${{ secrets.AWS_EC2_REGION }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Upload to S3
         run: |
-          aws s3 sync client/dist s3://bucket0703 --delete &&
-          aws cloudfront create-invalidation --distribution-id EKRBCNRYC71U8 --paths "/*"
+          aws s3 sync client/dist s3://mybucket --delete &&
+          aws cloudfront create-invalidation --distribution-id EHSJGMM7WW9AD --paths "/*"
+
       - name: List files in server directory
         run: |
           ls -la server
+
       - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
@@ -73,8 +68,11 @@ jobs:
       - name: Log in to Docker Hub
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
+      - name: Test Docker Hub login
+        run: docker info
+
       - name: Push Docker image to Docker Hub
-        run: docker push yajie0219/test
+        run: docker push yajie0219/test:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -88,7 +86,7 @@ jobs:
         run: echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
 
       - name: Pull Docker image from Docker Hub
-        run: docker pull yajie0219/test
+        run: docker pull yajie0219/test:latest
 
       - name: Clean up unused Docker resources
         run: docker system prune -af
@@ -104,11 +102,7 @@ jobs:
           chmod 600 aaa.pem
           echo "Connecting to EC2 and deploying Docker container"
           ssh -o StrictHostKeyChecking=no -i aaa.pem $EC2_USER@$EC2_HOST '
-            echo "Pulling Docker image"
-            docker pull yajie0219/test &&
-            echo "Stopping existing container if any"
+            docker pull yajie0219/test:latest &&
             docker stop app || true &&
-            echo "Removing existing container if any"
             docker rm app || true &&
-            echo "Running new Docker container"
-            docker run -d --name app -p 3000:3000 --env-file /home/ubuntu/climbbook/.env yajie0219/test'
+            docker run -d --name app -p 3000:3000 --env-file /home/ubuntu/climbbook/.env yajie0219/test:latest'
