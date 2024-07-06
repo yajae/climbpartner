@@ -339,7 +339,7 @@ input[type="radio"] {
   font-size: 12px;
   display: flex;
   align-items: center;
-  margin-right: 30px;
+  margin: 0px 0px 20px 300px;
 }
 
 .add-day:hover {
