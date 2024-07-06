@@ -78,6 +78,18 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: docker push yajie0219/test
 
+      - name: Run Docker container locally
+        run: |
+          docker run -d --name test_container yajie0219/test:latest
+
+      - name: List files in Docker container
+        run: |
+          docker exec test_container ls -la /
+
+      - name: Stop and remove Docker container
+        run: |
+          docker stop test_container && docker rm test_container
+
   deploy:
     runs-on: ubuntu-latest
     needs: build
