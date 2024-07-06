@@ -3,7 +3,7 @@ name: CI/CD Pipeline
 on:
   push:
     branches:
-      - sprint3
+      - main
  
 jobs:
   build:
@@ -90,11 +90,11 @@ jobs:
         run: |
           echo "Creating SSH key file"
           echo "$SSH_PRIVATE_KEY" > aaa.pem
-          chmod 600 m3.pem
+          chmod 600 aaa.pem
           echo "Connecting to EC2 and deploying Docker container"
-          ssh -o StrictHostKeyChecking=no -i m3.pem $EC2_USER@$EC2_HOST '
+          ssh -o StrictHostKeyChecking=no -i aaa.pem $EC2_USER@$EC2_HOST '
             echo "Pulling Docker image"
-            docker pull no30131/rock_reach &&
+            docker pull yajie0219/test &&
             echo "Stopping existing container if any"
             docker stop app || true &&
             echo "Removing existing container if any"
