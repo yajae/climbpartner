@@ -58,8 +58,8 @@ jobs:
 
       - name: Upload to S3
         run: |
-          aws s3 sync client/build s3://bucket0703 --delete &&
-          aws cloudfront create-invalidation --distribution-id EHSJGMM7WW9AD --paths "/*"
+          aws s3 sync client/dist s3://bucket0703 --delete &&
+          aws cloudfront create-invalidation --distribution-id EKRBCNRYC71U8 --paths "/*"
       - name: List files in server directory
         run: |
           ls -la server
