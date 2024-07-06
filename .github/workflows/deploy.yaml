@@ -41,6 +41,7 @@ jobs:
       - name: List client/build files
         run: |
           ls -la client/build
+   
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -53,7 +54,9 @@ jobs:
         run: |
           aws s3 sync client/build s3://bucket0703 --delete &&
           aws cloudfront create-invalidation --distribution-id EHSJGMM7WW9AD --paths "/*"
-
+    - name: List files in server directory
+        run: |
+          ls -la server
     - name: Build Docker image
         uses: docker/build-push-action@v2
         with:
