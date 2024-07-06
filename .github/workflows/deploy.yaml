@@ -38,9 +38,9 @@ jobs:
           cd client
           npm run build
 
-      - name: List client/build files
+      - name: List client/dist files
         run: |
-          ls -la client/build
+          ls -la client/dist
    
 
       - name: Configure AWS credentials
