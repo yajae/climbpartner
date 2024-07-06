@@ -21,7 +21,7 @@ const Dashboard = () => {
 
     const fetchRoutes = async () => {
       try {
-        const response = await axios.get(`/route/user-paths/${id}`);
+        const response = await axios.get(`http://localhost:3000/route/user-paths/${id}`);
         setRoutes(response.data);
         console.log('route',response.data)
       } catch (error) {
