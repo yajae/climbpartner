@@ -103,7 +103,7 @@ jobs:
         run: |
           echo "Creating SSH key file"
           echo "$SSH_PRIVATE_KEY" > aaa.pem
-          chmod 600 aaa.pem
+          chmod 400 aaa.pem
           echo "Connecting to EC2 and deploying Docker container"
           ssh -o StrictHostKeyChecking=no -i aaa.pem $EC2_USER@$EC2_HOST '
             echo "Pulling Docker image"
