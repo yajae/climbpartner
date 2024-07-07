@@ -18,21 +18,28 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
 app.use(cookieParser());
+const allowedOrigins = ['http://localhost:5173', 'https://35.76.14.198'];
 
-const corsOptions = {
-    origin: '*',
-    credentials: true
-};
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true
+}));
+
+
 
 const io = new Server(server, {
     cors: {
-        origin: '*',
-        methods: ['GET', 'POST'],
-        credentials: true
+      origin: allowedOrigins,
+      methods: ['GET', 'POST'],
+      credentials: true
     }
-});
-
+  });
 app.use('/api', userRoutes);
 app.use('/route', routeRoutes);
 

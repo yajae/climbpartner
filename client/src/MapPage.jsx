@@ -194,7 +194,8 @@ const MapPage = () => {
       fetchInitialMarkers(userId);
       const socket = io('https://35.76.14.198', {
         reconnectionAttempts: 5,
-        reconnectionDelay: 1000
+        reconnectionDelay: 1000,
+        transports: ['websocket', 'polling'],
     });
       socketRef.current.emit('join-room', room);
       
