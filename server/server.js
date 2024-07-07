@@ -18,7 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = ['http://localhost:5173', 'https://35.76.14.198','https://fronend.yvonnei.com'];
+const allowedOrigins = ['http://localhost:5173', 'https://35.76.14.198','https://frontend.yvonnei.com','https://yvonnei.com'];
 
 app.use(cors({
   origin: function (origin, callback) {
@@ -103,11 +103,11 @@ io.on('connection', async (socket) => {
     });
 });
 
-app.use(express.static(join(__dirname, 'public')));
+// app.use(express.static(join(__dirname, 'public')));
 
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+// app.get('*', (req, res) => {
+//     res.sendFile(path.join(__dirname, 'public', 'index.html'));
+// });
 
 server.listen(3000, () => {
     console.log(`Server is running on http://localhost:3000`);

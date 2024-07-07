@@ -192,10 +192,9 @@ const MapPage = () => {
   useEffect(() => {
     if (map) {
       fetchInitialMarkers(userId);
-      const socket = io('https://35.76.14.198', {
+      const socket = io('https://yvonnei.com', {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-        transports: ['websocket', 'polling'],
     });
       socketRef.current.emit('join-room', room);
       
@@ -219,8 +218,15 @@ const MapPage = () => {
         });
       });
 
-      socketRef.current.on('connect_error', (err) => {
-        console.error('Connection error:', err);
+      socket.on("connect_error", (err) => {
+
+        console.log('socker err message',err.message);
+      
+
+        console.log('socker err description',err.description);
+      
+        
+        console.log('socker err context',err.context);
       });
 
       return () => {
