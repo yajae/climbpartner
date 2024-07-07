@@ -99,7 +99,7 @@ io.on('connection', async (socket) => {
 app.use(express.static(join(__dirname, 'public')));
 
 app.get('*', (req, res) => {
-    res.sendFile('http://bucket0703.s3-website-ap-northeast-1.amazonaws.com/');
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 server.listen(3000, () => {
