@@ -192,9 +192,10 @@ const MapPage = () => {
   useEffect(() => {
     if (map) {
       fetchInitialMarkers(userId);
-      socketRef.current = io('http://localhost:3000', {
-        withCredentials: true,
-      });
+      const socket = io('https://35.76.14.198', {
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000
+    });
       socketRef.current.emit('join-room', room);
       
       socketRef.current.on('new-marker', (newMarker) => {
