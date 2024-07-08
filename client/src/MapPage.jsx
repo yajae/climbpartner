@@ -190,25 +190,27 @@ const MapPage = () => {
   }, [map, markers]);
 
   useEffect(() => {
-    console.log('map',map)
+    console.log('map', map);
     if (map) {
+      // Fetch initial markers when map is available
       fetchInitialMarkers(userId);
-      socketRef.current = io('/', {
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        withCredentials: true,
-      });
-  
-      socketRef.current.on('connect', () => {
+
+      // Initialize socket connection
+      const socket = io();
+
+      socket.on('connect', () => {
         console.log('Connected to server');
-        socketRef.current.emit('join-room', room);
-      });
-      socketRef.current.on('new-marker', (newMarker) => {
-        console.log('create a new marker')
-
+        socket.emit('join-room', room);
       });
 
-      socketRef.current.on('delete-marker', (lngLat) => {
+      // Handle new marker creation
+      socket.on('new-marker', (newMarker) => {
+        console.log('create a new marker');
+        // Add your logic to handle new marker creation here
+      });
+
+      // Handle marker deletion
+      socket.on('delete-marker', (lngLat) => {
         setMarkers((prevMarkers) => {
           const updatedMarkers = prevMarkers.filter((marker) => {
             const markerLngLat = marker.getLngLat();
@@ -223,22 +225,19 @@ const MapPage = () => {
         });
       });
 
-      socketRef.current.on("connect_error", (err) => {
-
-        console.log('socker err message',err.message);
-      
-
-        console.log('socker err description',err.description);
-      
-        
-        console.log('socker err context',err.context);
+      // Handle socket connection errors
+      socket.on("connect_error", (err) => {
+        console.log('socket error message', err.message);
+        console.log('socket error description', err.description);
+        console.log('socket error context', err.context);
       });
 
+      // Cleanup on component unmount
       return () => {
-        socketRef.current.disconnect();
+        socket.disconnect();
       };
     }
-  }, [map]);
+  }, [map, userId, room, fetchInitialMarkers, setMarkers, updatePath]);
 
   const fetchInitialMarkers = async (userId) => {
     try {
