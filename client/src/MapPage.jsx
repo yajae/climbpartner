@@ -56,7 +56,7 @@ const MapPage = () => {
         return
       }
       try {
-        const response = await fetch(`http://localhost:3000/route/check-permission/${userId}/${routeId}`, {
+        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/route/check-permission/${userId}/${routeId}`, {
           method: 'GET',
           credentials: 'include'
         });
