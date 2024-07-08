@@ -13,11 +13,11 @@ const AuthPage = () => {
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
   };
-
+  console.log('import.meta.env.SERVER_URL',import.meta.env.SERVER_URL)
   const handleSubmit = async (event) => {
     event.preventDefault();
     const url = isLogin ? '/login' : '/register';
-    const response = await fetch(`https://35.76.14.198/api${url}`, {
+    const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api${url}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

@@ -23,6 +23,11 @@ const ChatWidget = ({ room }) => {
   }, []);
 
   useEffect(() => {
+    // socket = io(`${import.meta.env.VITE_SERVER_URL}`, {
+    //   reconnectionAttempts: 5,
+    //   reconnectionDelay: 1000,
+    //   withCredentials: true,
+    // });
     if (username) {
       socket.emit('join-room', room);
       fetchMessages();
@@ -58,7 +63,7 @@ const ChatWidget = ({ room }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch(`http://localhost:3000/route/chat-messages/${room}`);
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/route/chat-messages/${room}`);
       const data = await response.json();
       setMessages(Array.isArray(data) ? data : []);
       setFilteredMessages(Array.isArray(data) ? data : []);

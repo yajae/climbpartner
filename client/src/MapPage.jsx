@@ -192,7 +192,7 @@ const MapPage = () => {
   useEffect(() => {
     if (map) {
       fetchInitialMarkers(userId);
-      socketRef.current = io('https://35.76.14.198', {
+      socketRef.current = io(`${import.meta.env.VITE_SERVER_URL}`, {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         withCredentials: true,
