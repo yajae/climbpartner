@@ -6,7 +6,7 @@ import AuthPage from './AuthPage';
 import MapPage from './MapPage';
 import Dashboard from './Dashboard';
 
-import logo from './logo.png'; 
+import logo from './assets/logo.png'; 
 
 
 function App() {

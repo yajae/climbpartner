@@ -15,7 +15,7 @@ const PermissionModal = ({ route, onClose, onPermissionsChange }) => {
 
   const handleSave = async () => {
     try {
-      await axios.post('http://localhost:3000/route/update-permissions', {
+      await axios.post('https://35.76.14.198/route/update-permissions', {
         userId: userId, 
         routeId: route.routeId, 
         permissionType: permission,

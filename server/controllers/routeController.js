@@ -5,10 +5,10 @@ const { ObjectId } = mongoose.Types;
 export const getUserPaths = async (req, res) => {
     try {
         const userId = req.params.userId;
-        const userPaths = await UserPathModel.findOne({ userId }).populate('paths.permissions.friends');
+        let userPaths = await UserPathModel.findOne({ userId }).populate('paths.permissions.friends');
 
         if (!userPaths) {
-            userPaths = new UserPathModel({
+           const userPaths = new UserPathModel({
                 userId: userId,
                 paths: []
             });

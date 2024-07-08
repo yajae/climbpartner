@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import io from 'socket.io-client';
 import './ChatWidget.css';
-import markerIcon from './search.png';
+import markerIcon from './assets/search.png';
 
 const socket = io('', {
   withCredentials: true,
@@ -58,7 +58,7 @@ const ChatWidget = ({ room }) => {
 
   const fetchMessages = async () => {
     try {
-      const response = await fetch(`/route/chat-messages/${room}`);
+      const response = await fetch(`http://localhost:3000/route/chat-messages/${room}`);
       const data = await response.json();
       setMessages(Array.isArray(data) ? data : []);
       setFilteredMessages(Array.isArray(data) ? data : []);

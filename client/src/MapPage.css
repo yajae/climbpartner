@@ -69,7 +69,8 @@
   margin-bottom: 10px;
 }
 
-.add-button {
+.mapboxgl-popup-content #add-button {
+  all: unset;
   padding: 5px;
   border-radius: 3px;
   background-color: #4CAF50;
@@ -98,7 +99,7 @@
   list-style: none;
 }
 
-.tab-button ,#toggle-elevation-button {
+.tab-button  {
   padding: 10px 20px;
   border: none;
   background-color: rgb(164 206 239 / 20%);
@@ -164,30 +165,30 @@
   height: 250px;
 }
 
-#toggle-elevation-button {
-  padding: 10px;
+button#toggle-elevation-button {
+  all: unset !important;
+  padding: 10px !important;
   width: 150px;
-  background: #254f7c;
-
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  margin: 10px;
+  background: #ffffff !important;
+  color:rgb(0, 0, 0);
+  border: 1px solid black !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  margin: 10px !important;
 }
+button#toggle-elevation-button:hover {
+  background: #1e66ae !important;
+  color: white;
 
-
-/* #toggle-elvation-button{
-  width: 150px;
-} */
-
-#under-map-info {
+}
+.under-map-info {
   display: flex; 
   align-items: center; 
   justify-content: space-between; 
-  font-size: 20px; 
+  font-size: 14px; 
 }
-#under-map-info > div {
-  margin-right: 10px;
+.under-map-info > div {
+  margin-right: 30px;
 }
 
 
@@ -198,7 +199,7 @@
   top: -22px; 
   background-size: cover;
   border-radius: 50%; 
-   background-image: url('marker.png'); 
+   background-image: url('./assets/marker.png'); 
 }
 .marker-number {
   position: absolute;
@@ -215,17 +216,27 @@
   padding: 0px;
   border-radius: 3%;
   width: 100%;
+  height: 400px;
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.day-header,.route {
+.route {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
   border-bottom: 1px solid #ccc;
   background-color:rgb(164 206 239 / 20%);
+  position: relative;
+}
+.day-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+
+  background-color:rgba(255, 255, 255, 0);
   position: relative;
 }
 
@@ -249,7 +260,7 @@
   font-size: 16px;
   font-weight: bold;
   padding: 0 10px;
-  background-color: #f9f9f9;
+  background-color: #f9f9f900;
   position: relative;
   width: 75px;
   z-index: 1;
@@ -266,11 +277,11 @@
 .time-input{
   font-size: 14px;
   color: #666;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc00;
   border-radius: 4px;
   padding: 5px ;
   background-color: #fff;
-  width: 125px;
+  width: 115px;
   margin-left: 5px;
 }
 
@@ -343,14 +354,13 @@ input[type="radio"] {
 }
 
 .add-day:hover {
-  background-color: #5d0e0e;
+  background-color: #ffffff;
 }
 .btn-icon {
-  background-color: #5579a057;
+  background-color: #5579a000;
   color: white;
   border: none;
-  padding: 5px 8px;
-  
+  padding: 5px 4px 0px 8px;
   cursor: pointer;
   border-radius: 5px;
   margin-right: 6.5px;

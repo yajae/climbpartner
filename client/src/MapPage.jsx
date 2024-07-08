@@ -9,7 +9,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import ChatWidget from './ChatWidget';
 import Tabs from './Tabs';
 import MapChart from './MapChart';
-import trashIcon from './trash.png';
+import deleteIcon from './assets/delete.png';
 
 mapboxgl.accessToken = 'pk.eyJ1IjoieXZvbm5lMDIxOSIsImEiOiJjbHg0MmNwaHUweHluMmxxM2gxOHRxY3RmIn0.d-D92-Vj4tjgc3aQbvXfKQ';
 
@@ -56,7 +56,7 @@ const MapPage = () => {
         return
       }
       try {
-        const response = await fetch(`/route/check-permission/${userId}/${routeId}`, {
+        const response = await fetch(`http://localhost:3000/route/check-permission/${userId}/${routeId}`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -192,12 +192,16 @@ const MapPage = () => {
   useEffect(() => {
     if (map) {
       fetchInitialMarkers(userId);
-      const socket = io('https://yvonnei.com', {
+      socketRef.current = io('https://35.76.14.198', {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
-    });
-      socketRef.current.emit('join-room', room);
-      
+        withCredentials: true,
+      });
+  
+      socketRef.current.on('connect', () => {
+        console.log('Connected to server');
+        socketRef.current.emit('join-room', room);
+      });
       socketRef.current.on('new-marker', (newMarker) => {
         console.log('create a new marker')
 
@@ -218,7 +222,7 @@ const MapPage = () => {
         });
       });
 
-      socket.on("connect_error", (err) => {
+      socketRef.current.on("connect_error", (err) => {
 
         console.log('socker err message',err.message);
       
@@ -237,7 +241,7 @@ const MapPage = () => {
 
   const fetchInitialMarkers = async (userId) => {
     try {
-      const response = await fetch(`/route/markers/latest/${userId}/${routeId}`, {
+      const response = await fetch(`https://35.76.14.198/route/markers/latest/${userId}/${routeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
@@ -548,8 +552,8 @@ const MapPage = () => {
             <div className="schedule">
               <div className='route'>
                 <div>
-                  <div className='route-name' >路線名稱</div>
-                    <input 
+                  <div className='route-name' >路線名稱
+                  <input 
                         type="text" 
                         value={routeName}
                         className='route-input'
@@ -560,6 +564,8 @@ const MapPage = () => {
                           console.log('routeName',routeName)
                         }}
                     />
+                  </div>
+               
                 </div>
                 <div>
                 <div className='route-name' >日期</div>
@@ -581,13 +587,16 @@ const MapPage = () => {
                      
                         <span className="day-number">第 {day.dayNumber} 天</span>
                         <div className="line"></div>
-                    
-                      <input
+                      <div>
+                        出發時間
+                        <input
                         type="time"
                         className="time-input"
                         value={currentTime}
                         onChange={(e) => updateTime(dayIndex, 0, e.target.value)}
                       />
+                      </div>
+                 
               
                      
                     </div>
@@ -610,7 +619,7 @@ const MapPage = () => {
                       </div>
                       <div>
                         <button className="btn-icon" onClick={() => handleDelete(index)}> 
-                          <img src={trashIcon} alt="Trash Icon"/>
+                          <img src={deleteIcon} alt="Delete Icon"/>
                         </button>
                       </div>
                       
@@ -644,12 +653,16 @@ const MapPage = () => {
           <div id='chart-space'></div>
           <canvas ref={chartContainer} id="chart-canvas"></canvas>
         </div>
-        <div id='under-map-info'>
-          <button id='toggle-elvation-button' onClick={toggleChartVisibility}>{isChartVisible ? '海拔剖面圖' : '海拔剖面圖'}</button>
+        <div className='under-map-info'>
+         
           <div id="walking-time"></div>
           <div id="walking-distance"></div>
           <div id="total-ascent"></div>
           <div id="total-descent"></div>
+          <button id="toggle-elevation-button" onClick={toggleChartVisibility} style={{ background: '#254f7c' }}>
+          <img alt="Elevation Profile" width="40" height="40" className="img-elevation-profile" lazy="loaded" src="https://zh-tw.hikingbook.net/images/map/elevation-profile.png"/>
+          <span>{isChartVisible ? '海拔剖面圖' : '海拔剖面圖'}</span>  
+          </button>
         </div>
       </div>
     </div>
