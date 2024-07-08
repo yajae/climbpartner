@@ -106,7 +106,7 @@ io.on('connection', async (socket) => {
 app.use(express.static(join(__dirname, 'public')));
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.sendFile(path.join(__dirname, 'public/index.html'));
 });
 
 server.listen(3000, () => {
