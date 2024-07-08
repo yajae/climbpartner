@@ -189,14 +189,14 @@ const MapPage = () => {
     }
   }, [map, markers]);
 
-  useEffect(() => {
+ useEffect(() => {
     console.log('map', map);
     if (map) {
       // Fetch initial markers when map is available
       fetchInitialMarkers(userId);
 
       // Initialize socket connection
-      const socket = io();
+      const socket = io('/',{ transports: ['websocket'] });
 
       socket.on('connect', () => {
         console.log('Connected to server');
@@ -225,19 +225,19 @@ const MapPage = () => {
         });
       });
 
-      // Handle socket connection errors
-      socket.on("connect_error", (err) => {
-        console.log('socket error message', err.message);
-        console.log('socket error description', err.description);
-        console.log('socket error context', err.context);
-      });
+      // // Handle socket connection errors
+      // socket.on("connect_error", (err) => {
+      //   console.log('socket error message', err.message);
+      //   console.log('socket error description', err.description);
+      //   console.log('socket error context', err.context);
+      // });
 
       // Cleanup on component unmount
       return () => {
         socket.disconnect();
       };
     }
-  }, [map, userId, room, fetchInitialMarkers, setMarkers, updatePath]);
+  }, [map]);
 
   const fetchInitialMarkers = async (userId) => {
     try {
