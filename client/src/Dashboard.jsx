@@ -68,7 +68,7 @@ const Dashboard = () => {
 
   const handleCreateNewRoute = async () => {
     try {
-      const response = await axios.post('http://localhost:3000/route/create-route', {
+      const response = await axios.post(`${import.meta.env.VITE_SERVER_URL}/route/create-route`, {
         userId,
         routeName: '新路線'
       });
