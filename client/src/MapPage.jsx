@@ -196,7 +196,7 @@ const MapPage = () => {
       fetchInitialMarkers(userId);
 
       // Initialize socket connection
-      const socket = io('/',{ transports: ['websocket'] });
+      const socket = io(`${import.meta.env.VITE_SERVER_URL}`,{ transports: ['websocket'] });
 
       socket.on('connect', () => {
         console.log('Connected to server');
@@ -225,12 +225,12 @@ const MapPage = () => {
         });
       });
 
-      // // Handle socket connection errors
-      // socket.on("connect_error", (err) => {
-      //   console.log('socket error message', err.message);
-      //   console.log('socket error description', err.description);
-      //   console.log('socket error context', err.context);
-      // });
+      // Handle socket connection errors
+      socket.on("connect_error", (err) => {
+        console.log('socket error message', err.message);
+        console.log('socket error description', err.description);
+        console.log('socket error context', err.context);
+      });
 
       // Cleanup on component unmount
       return () => {
