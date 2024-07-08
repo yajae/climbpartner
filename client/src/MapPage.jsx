@@ -241,7 +241,7 @@ const MapPage = () => {
 
   const fetchInitialMarkers = async (userId) => {
     try {
-      const response = await fetch(`https://35.76.14.198/route/markers/latest/${userId}/${routeId}`, {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/route/markers/latest/${userId}/${routeId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
