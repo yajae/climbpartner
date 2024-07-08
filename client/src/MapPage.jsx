@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-import ChatWidget from './ChatWidget';
+// import ChatWidget from './ChatWidget';
 import Tabs from './Tabs';
 import MapChart from './MapChart';
 import deleteIcon from './assets/delete.png';
@@ -193,7 +193,7 @@ const MapPage = () => {
     console.log('map',map)
     if (map) {
       fetchInitialMarkers(userId);
-      socketRef.current = io('http://localhost:3000', {
+      socketRef.current = io('/', {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         withCredentials: true,
@@ -638,7 +638,7 @@ const MapPage = () => {
           )}
           {activeTab === 1 && (
             <div className='chat-widget-container'>   
-              <ChatWidget room={room} />
+              {/* <ChatWidget room={room} /> */}
             </div>
           )}
           {activeTab === 2 && (
