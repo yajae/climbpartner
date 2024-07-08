@@ -18,7 +18,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
 app.use(cookieParser());
-const allowedOrigins = ['http://localhost:5173', 'https://35.76.14.198','https://frontend.yvonnei.com','https://yvonnei.com'];
+const allowedOrigins = ['http://localhost:5173','https://frontend.yvonnei.com'];
 
 app.use(cors({
   origin: function (origin, callback) {
