@@ -13,7 +13,7 @@ const AuthPage = () => {
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);
   };
-  console.log('import.meta.env.SERVER_URL',import.meta.env.SERVER_URL)
+  console.log('import.meta.env.VITE_SERVER_URL',import.meta.env.VITE_SERVER_URL)
   const handleSubmit = async (event) => {
     event.preventDefault();
     const url = isLogin ? '/login' : '/register';
