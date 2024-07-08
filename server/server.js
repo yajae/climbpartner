@@ -18,20 +18,19 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(cors({
+const corsOptions = {
     origin: 'http://localhost:5173',
     credentials: true
-  }));
-  
-//   app.use((req, res, next) => {
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-//     res.setHeader('Access-Control-Allow-Credentials', 'true');
-//     next();
-//   });
-  
-  const io = new Server(server);
+};
+app.use(cors(corsOptions));
+
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
 app.use('/api', userRoutes);
 app.use('/route', routeRoutes);
 
@@ -98,7 +97,7 @@ io.on('connection', async (socket) => {
 app.use(express.static(join(__dirname, 'public')));
 
 app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public/index.html'));
+    res.sendFile(path.join(__dirname, 'public','index.html'));
 });
 
 server.listen(3000, () => {

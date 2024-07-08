@@ -189,28 +189,20 @@ const MapPage = () => {
     }
   }, [map, markers]);
 
- useEffect(() => {
-    console.log('map', map);
+  useEffect(() => {
+    console.log('map',map)
     if (map) {
-      // Fetch initial markers when map is available
       fetchInitialMarkers(userId);
+      socketRef.current = io(`${import.meta.env.VITE_SERVER_URL}`, {
+        withCredentials: true,
+      });
+      socketRef.current.emit('join-room', room);
+      socketRef.current.on('new-marker', (newMarker) => {
+        console.log('create a new marker')
 
-      // Initialize socket connection
-      const socket = io(`${import.meta.env.VITE_SERVER_URL}`,{ transports: ['websocket'] });
-
-      socket.on('connect', () => {
-        console.log('Connected to server');
-        socket.emit('join-room', room);
       });
 
-      // Handle new marker creation
-      socket.on('new-marker', (newMarker) => {
-        console.log('create a new marker');
-        // Add your logic to handle new marker creation here
-      });
-
-      // Handle marker deletion
-      socket.on('delete-marker', (lngLat) => {
+      socketRef.current.on('delete-marker', (lngLat) => {
         setMarkers((prevMarkers) => {
           const updatedMarkers = prevMarkers.filter((marker) => {
             const markerLngLat = marker.getLngLat();
@@ -225,16 +217,19 @@ const MapPage = () => {
         });
       });
 
-      // Handle socket connection errors
-      socket.on("connect_error", (err) => {
-        console.log('socket error message', err.message);
-        console.log('socket error description', err.description);
-        console.log('socket error context', err.context);
+      socketRef.current.on("connect_error", (err) => {
+
+        console.log('socker err message',err.message);
+      
+
+        console.log('socker err description',err.description);
+      
+        
+        console.log('socker err context',err.context);
       });
 
-      // Cleanup on component unmount
       return () => {
-        socket.disconnect();
+        socketRef.current.disconnect();
       };
     }
   }, [map]);
