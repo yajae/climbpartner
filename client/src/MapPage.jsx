@@ -190,6 +190,7 @@ const MapPage = () => {
   }, [map, markers]);
 
   useEffect(() => {
+    console.log('map',map)
     if (map) {
       fetchInitialMarkers(userId);
       socketRef.current = io('http://localhost:3000', {
