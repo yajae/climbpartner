@@ -3,7 +3,7 @@ import io from 'socket.io-client';
 import './ChatWidget.css';
 import markerIcon from './assets/search.png';
 
-const socket = io('', {
+const socket = io(`${import.meta.env.VITE_SERVER_URL}`, {
   withCredentials: true,
 });
 
@@ -23,18 +23,12 @@ const ChatWidget = ({ room }) => {
   }, []);
 
   useEffect(() => {
-    // socket = io(`${import.meta.env.VITE_SERVER_URL}`, {
-    //   reconnectionAttempts: 5,
-    //   reconnectionDelay: 1000,
-    //   withCredentials: true,
-    // });
     if (username) {
       socket.emit('join-room', room);
       fetchMessages();
     }
 
     socket.on('receiveMessage', (data) => {
-      console.log('receiveMessage')
       setMessages((premsgs) => {
         const newmsgs = [...(premsgs || []), data];
         return newmsgs;

@@ -85,3 +85,7 @@ ul li .buttons {
   color: white;
   text-decoration: none;
 }
+
+#add-route-btn {
+  margin-right: 300px;
+}

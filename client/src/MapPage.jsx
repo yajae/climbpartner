@@ -6,7 +6,7 @@ import io from 'socket.io-client';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import './MapPage.css';
 import { useLocation, useNavigate } from 'react-router-dom';
-// import ChatWidget from './ChatWidget';
+import ChatWidget from './ChatWidget';
 import Tabs from './Tabs';
 import MapChart from './MapChart';
 import deleteIcon from './assets/delete.png';
@@ -632,7 +632,7 @@ const MapPage = () => {
           )}
           {activeTab === 1 && (
             <div className='chat-widget-container'>   
-              {/* <ChatWidget room={room} /> */}
+              <ChatWidget room={room} />
             </div>
           )}
           {activeTab === 2 && (
