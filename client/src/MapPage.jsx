@@ -194,8 +194,8 @@ const MapPage = () => {
     if (map) {
       fetchInitialMarkers(userId);
       socketRef.current = io(`${import.meta.env.VITE_SERVER_URL}`, {
-        withCredentials: true,
-      });
+        transports: ['websocket']
+     });
       socketRef.current.emit('join-room', room);
       socketRef.current.on('new-marker', (newMarker) => {
         console.log('create a new marker')

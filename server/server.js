@@ -31,7 +31,7 @@ const io = new Server(server, {
         transports: ['websocket', 'polling'],
         credentials: true
     },
-    allowEIO3: true
+    allowEIO4: true
 });
 app.use('/api', userRoutes);
 app.use('/route', routeRoutes);
