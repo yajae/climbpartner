@@ -97,7 +97,7 @@ const Dashboard = () => {
             <li key={index}>
               <div className="route-info">
                 <div>路線名稱:  {route.routeName || '路線名稱'}</div>
-                <div>日期:  {route.date || '日期'}</div>
+                <div>日期:  {route.date || '2024/7/10'}</div>
                 <div>權限:  {getPermissionLabel(route.permissions.type)}</div>
               </div>
               <div className="buttons">

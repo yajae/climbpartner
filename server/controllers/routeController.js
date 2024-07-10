@@ -78,6 +78,7 @@ export const getLatestMarkers = async (req, res) => {
 
 export const updatePermissions = async (req, res) => {
     const { userId, routeId, permissionType, friends } = req.body;
+    console.log('更改權限',req.body)
     if (!userId || !routeId || !permissionType || (permissionType === 'friends' && !Array.isArray(friends))) {
         return res.status(400).send('Invalid request');
     }
@@ -88,7 +89,7 @@ export const updatePermissions = async (req, res) => {
             return res.status(404).send('User path not found');
         }
 
-        const path = userPath.paths.find(p => p.routeId === _id);
+        const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
         if (!path) {
             return res.status(404).send('Route not found');
         }

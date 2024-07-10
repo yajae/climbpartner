@@ -42,7 +42,7 @@
     border-color: #007bff;
   }
   
-  .submit-button, .toggle-button {
+  .submit-button {
     width: 100%;
     padding: 0.75rem;
     margin-top: 1rem;
@@ -51,7 +51,20 @@
     background: #007bff;
     color: white;
     cursor: pointer;
-    transition: background 0.3s;
+    /* transition: background 0.3s; */
+  }
+  .toggle-button {
+    width: 80%;
+    padding: 0.75rem;
+    margin-top: 1rem;
+    margin-left:25px;
+    border: none;
+    border-radius: 5px;
+    background: #18324b;
+    color: white;
+    cursor: pointer;
+    justify-content: center;
+    /* transition: background 0.3s; */
   }
   
   .submit-button:hover, .toggle-button:hover {

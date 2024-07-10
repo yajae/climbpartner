@@ -15,9 +15,9 @@ const PermissionModal = ({ route, onClose, onPermissionsChange }) => {
 
   const handleSave = async () => {
     try {
-      await axios.post('https://35.76.14.198/route/update-permissions', {
+      await axios.post(`${import.meta.env.VITE_SERVER_URL}/route/update-permissions`, {
         userId: userId, 
-        routeId: route.routeId, 
+        routeId: route._id, 
         permissionType: permission,
         friends: permission === 'friends' ? friends : []
       });

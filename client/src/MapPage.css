@@ -14,7 +14,7 @@
   display: flex;
   justify-content: space-evenly;
   width: 95%;
-  height: 700px;
+  height: 680px;
   margin: auto;
 }
 
@@ -47,12 +47,12 @@
   z-index: 2;
 }
 #chart-space {
-  height: 170%; 
+  height: 195%; 
   width: 100%;
   position: relative; 
 }
 #chart-canvas {
-  height: 360px;
+  height: 380px;
   position: relative; 
   background-color: white;
 }
@@ -162,19 +162,19 @@
 
 #chat-box {
   width: 100%;
-  height: 250px;
+  height: 195%;
 }
 
 button#toggle-elevation-button {
   all: unset !important;
   padding: 10px !important;
-  width: 150px;
+  width: 160px;
   background: #ffffff !important;
   color:rgb(0, 0, 0);
   border: 1px solid black !important;
   border-radius: 5px !important;
   cursor: pointer !important;
-  margin: 10px !important;
+  margin: 7px !important;
 }
 button#toggle-elevation-button:hover {
   background: #1e66ae !important;
@@ -249,7 +249,7 @@ button#toggle-elevation-button:hover {
 
 .day-number,.route-name {
   font-size: 16px;
-  font-weight: bold;
+
   padding: 0 10px;
   background-color: #f9f9f9;
   position: relative;
@@ -265,7 +265,7 @@ button#toggle-elevation-button:hover {
   width: 75px;
   z-index: 1;
 }
-.date-input {
+.date-input ,#route-name-input {
   font-size: 14px;
   color: #666;
   border: 1px solid #ccc;
@@ -347,6 +347,7 @@ input[type="radio"] {
   padding: 5px 10px;
   cursor: pointer;
   border-radius: 4px;
+  color:white;
   font-size: 12px;
   display: flex;
   align-items: center;
@@ -354,7 +355,7 @@ input[type="radio"] {
 }
 
 .add-day:hover {
-  background-color: #ffffff;
+  background-color: #73b0e5;
 }
 .btn-icon {
   background-color: #5579a000;

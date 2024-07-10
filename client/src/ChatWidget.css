@@ -36,7 +36,7 @@
 }
 
 .chat-search input {
-  width: 100%;
+  width: 120%;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
@@ -46,8 +46,8 @@
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  border-top: 1px solid #ccc;
-  border-bottom: 1px solid #ccc;
+
+
 }
 
 .chat-message {

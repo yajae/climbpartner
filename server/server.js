@@ -11,9 +11,9 @@ import { UserPathModel, ChatMessage } from './models/model.js';
 const { ObjectId } = mongoose.Types;
 import userRoutes from './routes/userRoutes.js';
 import routeRoutes from './routes/routeRoutes.js';
-import http from 'http';
+
 const app = express();
-const server = http.createServer(app);
+const server = createServer(app);
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json());
@@ -24,7 +24,13 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+        origin: 'http://localhost:5173',
+        methods: ['GET', 'POST'],
+        credentials: true
+    }
+});
 app.use('/api', userRoutes);
 app.use('/route', routeRoutes);
 

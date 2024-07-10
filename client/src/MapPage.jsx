@@ -549,6 +549,7 @@ const MapPage = () => {
                 <div>
                   <div className='route-name' >路線名稱
                   <input 
+                        id='route-name-input'
                         type="text" 
                         value={routeName}
                         className='route-input'
@@ -655,7 +656,7 @@ const MapPage = () => {
           <div id="total-ascent"></div>
           <div id="total-descent"></div>
           <button id="toggle-elevation-button" onClick={toggleChartVisibility} style={{ background: '#254f7c' }}>
-          <img alt="Elevation Profile" width="40" height="40" className="img-elevation-profile" lazy="loaded" src="https://zh-tw.hikingbook.net/images/map/elevation-profile.png"/>
+          <img alt="Elevation Profile" width="30" height="30" className="img-elevation-profile" lazy="loaded" src="https://zh-tw.hikingbook.net/images/map/elevation-profile.png"/>
           <span>{isChartVisible ? '海拔剖面圖' : '海拔剖面圖'}</span>  
           </button>
         </div>
