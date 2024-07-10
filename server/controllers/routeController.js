@@ -1,10 +1,13 @@
 import { UserPathModel, ChatMessage } from '../models/model.js';
 import mongoose from 'mongoose';
 const { ObjectId } = mongoose.Types;
-
+const apiKey = process.env.CWB_API_KEY;
 export const getUserPaths = async (req, res) => {
     try {
         const userId = req.params.userId;
+        if(!userId){
+            return res.status(400).send('Invalid request');
+        }
         let userPaths = await UserPathModel.findOne({ userId }).populate('paths.permissions.friends');
 
         if (!userPaths) {
@@ -186,5 +189,19 @@ export const getChatMessages = async (req, res) => {
       res.json(messages);
     } catch (err) {
       res.status(500).json({ message: err.message });
+    }
+  };
+  export const getWeatherMessage = async (req, res) => {
+    try {
+      const response = await axios.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001', {
+        params: {
+          Authorization: apiKey,
+          format: 'JSON'
+        }
+      });
+  
+      res.json(response.data);
+    } catch (error) {
+      res.status(500).send(error.toString());
     }
   };

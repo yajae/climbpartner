@@ -26,10 +26,12 @@ app.use(cors(corsOptions));
 
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:5173',
-        methods: ['GET', 'POST'],
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"],
+        transports: ['websocket', 'polling'],
         credentials: true
-    }
+    },
+    allowEIO3: true
 });
 app.use('/api', userRoutes);
 app.use('/route', routeRoutes);
