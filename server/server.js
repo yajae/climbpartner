@@ -19,12 +19,18 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173','https://frontend.yvonnei.com'],
     credentials: true
 };
 app.use(cors(corsOptions));
 
-const io = new Server(server);
+const io = new Server(server, {
+    cors: {
+      origin: ['http://localhost:5173','https://frontend.yvonnei.com'],
+      methods: ['GET', 'POST'],
+      credentials: true
+    }
+  });
 app.use('/api', userRoutes);
 app.use('/route', routeRoutes);
 
@@ -42,13 +48,22 @@ io.on('connection', async (socket) => {
 
         const userPath = await UserPathModel.findOne({ userId });
         if (!userPath) {
+            console.log('no user path')
            const userPath = new UserPathModel({
               userId: userId,
               paths: []
             });
           }
-        const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
-        if (path) {
+          if (!userPath) {
+            throw new Error('User path is null or undefined');
+        }
+
+        if (!userPath.paths) {
+            throw new Error('User path does not contain paths property');
+        }
+        if(userPath.paths){
+            const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
+ +
             console.log('routeName',routeName)
             path.routeName= routeName;
             path.markers.day1.push({ lng, lat, placeName, day, time });

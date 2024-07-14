@@ -1,7 +1,16 @@
 import { UserPathModel, ChatMessage } from '../models/model.js';
 import mongoose from 'mongoose';
 const { ObjectId } = mongoose.Types;
+import dotenv from 'dotenv';
+dotenv.config();
+import { fileURLToPath } from 'url';
+import path from 'path';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+import axios from 'axios'
 const apiKey = process.env.CWB_API_KEY;
+
 export const getUserPaths = async (req, res) => {
     try {
         const userId = req.params.userId;
@@ -15,7 +24,8 @@ export const getUserPaths = async (req, res) => {
                 userId: userId,
                 paths: []
             });
-            await userPaths.save();
+            const newpath = await userPaths.save();
+            res.send(newpath);
         }
         
         res.json(userPaths.paths);
@@ -25,37 +35,7 @@ export const getUserPaths = async (req, res) => {
     }
 };
 
-export const saveUserPath = async (req, res) => {
-    try {
-        const { userId, paths } = req.body;
-        let user = await UserModel.findOne({ id: userId });
-        if (!user) {
-            user = new UserModel({ id: userId, username: `user${userId}`, password: '123' });
-            await user.save();
-        }
-        const existingUserPath = await UserPathModel.findOne({ userId });
-        if (existingUserPath) {
-            paths.forEach((path) => {
-                const existingPath = existingUserPath.paths.find(p => p.routeId === path.routeId);
-                if (existingPath) {
-                    existingPath.markers = path.markers;
-                    existingPath.notes = path.notes;
-                } else {
-                    existingUserPath.paths.push(path);
-                }
-            });
-            await existingUserPath.save();
-        } else {
-            const newUserPath = new UserPathModel({ userId, paths });
-            await newUserPath.save();
-        }
 
-        res.json({ success: true });
-    } catch (error) {
-        console.error('Error saving user path:', error);
-        res.status(500).json({ error: 'Error saving data' });
-    }
-};
 
 export const getLatestMarkers = async (req, res) => {
     try {
@@ -193,15 +173,39 @@ export const getChatMessages = async (req, res) => {
   };
   export const getWeatherMessage = async (req, res) => {
     try {
-      const response = await axios.get('https://opendata.cwb.gov.tw/api/v1/rest/datastore/F-C0032-001', {
+      
+      const response = await axios.get('https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001', {
         params: {
           Authorization: apiKey,
           format: 'JSON'
         }
       });
-  
-      res.json(response.data);
+      res.send(response.data);
     } catch (error) {
-      res.status(500).send(error.toString());
+        console.error('Error fetching data:', error.message);
+        res.status(500).send(error.toString());
+    }
+  };
+  export const saveRouteName = async (req, res) => {
+    const { routeId, newRouteName } = req.body;
+    console.log('try to save route name')
+    try {
+      const userPath = await UserPathModel.findOne({ "paths.routeId": routeId });
+      if (!userPath) {
+        return res.status(404).json({ message: 'Route not found' });
+      }
+  
+      const route = userPath.paths.find(path => p => p._id.equals(new ObjectId(routeId)));
+      if (!route) {
+        return res.status(404).json({ message: 'Route not found' });
+      }
+  
+      route.routeName = newRouteName;
+      await userPath.save();
+  
+      res.json({ success: true, message: 'Route name saved successfully' });
+    } catch (error) {
+      console.error('Error saving route name:', error);
+      res.status(500).json({ message: 'Internal server error' });
     }
   };

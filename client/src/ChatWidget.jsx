@@ -123,7 +123,7 @@ const ChatWidget = ({ room }) => {
                 </div>
               ))
             ) : (
-              <div>No messages found</div>
+              <div>請在下方輸入聊天內容</div>
             )}
             <div ref={messagesEndRef} /> 
           </div>

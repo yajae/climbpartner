@@ -6,7 +6,30 @@ import PermissionModal from './PermissionModal';
 
 
 const Dashboard = () => {
+  const [username, setUsername] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      axios.get(`${import.meta.env.VITE_SERVER_URL}/api/user`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        },
+        withCredentials: true
+      }).then(response => {
+        if (response.data.success) {
+          console.log('auth token right')
+          setUsername(response.data.username);
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
+      }).catch(() => {
+        setIsAuthenticated(false);
+      });
+    }
+  }, []);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -21,7 +44,7 @@ const Dashboard = () => {
 
     const fetchRoutes = async () => {
       try {
-        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/route/user-paths/1`);
+        const response = await axios.get(`${import.meta.env.VITE_SERVER_URL}/route/user-paths/${id}`);
         setRoutes(response.data);
         console.log('route',response.data)
       } catch (error) {

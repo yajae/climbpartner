@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 
-const apiKey = 'CWA-9A3F8A8F-6668-4912-A811-A641887E137A';
-const apiUrl = `http://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization=${apiKey}&limit=1000`;
 
 const extractData = (data, locationName, elementName) => {
   const location = data.location.find(loc => loc.locationName === locationName);
@@ -22,7 +20,7 @@ const MapChart = () => {
   const [chartData, setChartData] = useState({});
 
   useEffect(() => {
-    fetch(apiUrl)
+    fetch(`${import.meta.env.VITE_SERVER_URL}/route/weather`)
       .then(response => response.json())
       .then(data => {
         setData(data.records);

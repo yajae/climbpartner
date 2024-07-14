@@ -195,6 +195,7 @@ const MapPage = () => {
       fetchInitialMarkers(userId);
       socketRef.current = io(`${import.meta.env.VITE_SERVER_URL}`);
       socketRef.current.emit('join-room', room);
+      
       socketRef.current.on('new-marker', (newMarker) => {
         console.log('create a new marker')
 
@@ -218,11 +219,7 @@ const MapPage = () => {
       socketRef.current.on("connect_error", (err) => {
 
         console.log('socker err message',err.message);
-      
-
-        console.log('socker err description',err.description);
-      
-        
+        console.log('socker err description',err.description)
         console.log('socker err context',err.context);
       });
 
@@ -536,6 +533,30 @@ const MapPage = () => {
     setCurrentTime(`${hours}:${minutes}`);
   }, []);
 
+
+  const saveRouteName = async (newRouteName) => {
+    try {
+      console.log('saveRouteName')
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/route/save-name`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({ routeId, newRouteName })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.message || 'Failed to save route name');
+      }
+
+      console.log('Route name saved successfully');
+    } catch (error) {
+      console.error('Error saving route name:', error);
+    }
+  };
+
   return (
     <div className="map-page">
       <div id='tab-box'>
@@ -545,30 +566,31 @@ const MapPage = () => {
             <div className="schedule">
               <div className='route'>
                 <div>
-                  <div className='route-name' >路線名稱
+                  <div className='route-name'>路線名稱
                   <input 
                         id='route-name-input'
                         type="text" 
                         value={routeName}
                         className='route-input'
-                        onChange={(e) => {
+                        onChange={ (e) => {
                           const newRouteName = e.target.value
-                          console.log('newRouteName',newRouteName)
                           setRouteName(newRouteName);
-                          console.log('routeName',routeName)
+                          saveRouteName(newRouteName);
                         }}
                     />
                   </div>
                
                 </div>
                 <div>
-                <div className='route-name' >日期</div>
+                <div className='route-name'>日期
                 <input
                         type="date"
                         className="date-input"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
                       />
+                </div>
+            
                 </div>
                 
               </div>
@@ -625,8 +647,11 @@ const MapPage = () => {
                       新增下一天
                     </button>
                   )}
+
                 </div>
               ))}
+            
+      
             </div>
           )}
           {activeTab === 1 && (
