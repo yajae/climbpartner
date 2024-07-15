@@ -193,7 +193,7 @@ const MapPage = () => {
     console.log('map',map)
     if (map) {
       fetchInitialMarkers(userId);
-      socketRef.current = io('');
+      socketRef.current = io(`${import.meta.env.VITE_SERVER_URL}`);
       socketRef.current.emit('join-room', room);
       
       socketRef.current.on('new-marker', (newMarker) => {
