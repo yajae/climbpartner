@@ -150,6 +150,6 @@ jobs:
             echo "Pulling Docker image"
             docker pull yajie0219/test &&
             echo "Running new Docker container"
-            docker run -d --name app -p 3000:3000 --env-file /home/ubuntu/climbbook/.env yajie0219/test &&
+            docker run -d --name app -p 3000:3000 --env-file /home/ubuntu/.env yajie0219/test &&
             echo "Cleaning up unused Docker resources"
             docker system prune -af'
