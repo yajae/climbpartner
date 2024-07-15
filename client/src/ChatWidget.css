@@ -64,18 +64,11 @@
 .chat-input {
   margin-bottom: 10px;
   padding: 10px;
-  border: 1px solid #ccc;
+  border: 1px solid #cccccc00; 
   border-radius: 5px;
 }
 
-.chat-send-button {
-  padding: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
+
 
 .highlight {
   background-color: yellow;

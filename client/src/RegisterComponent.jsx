@@ -11,61 +11,63 @@ const RegisterComponent = ({ toggleAuthMode }) => {
   const [usernameAvailable, setUsernameAvailable] = useState(true);
   const navigate = useNavigate();
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(String(email).toLowerCase());
-  };
-
-  const validatePassword = (password) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumber = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-    return password.length >= minLength && hasUpperCase && hasLowerCase && hasNumber && hasSpecialChar;
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const validatePassword = (password) =>
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /\d/.test(password) &&
+    /[!@#$%^&*(),.?":{}|<>]/.test(password);
 
   const handleUsernameChange = async (e) => {
     const value = e.target.value;
     setUsername(value);
-    if (value) {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/check-username`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ username: value })
-        });
-        const data = await response.json();
-        setUsernameAvailable(data.available);
-        setErrors((prevErrors) => ({ ...prevErrors, username: data.available ? '' : 'Username is already taken' }));
-      } catch (error) {
-        console.error('Error checking username availability:', error);
-      }
-    }
+    // if (value) {
+    //   try {
+    //     // const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/check-username`, {
+    //     //   method: 'POST',
+    //     //   headers: {
+    //     //     'Content-Type': 'application/json'
+    //     //   },
+    //     //   body: JSON.stringify({ username: value })
+    //     // });
+    //     // const data = await response.json();
+    //     // console.log('data',data)
+    //     // setUsernameAvailable(data.available);
+    //     // setErrors((prevErrors) => ({
+    //     //   ...prevErrors,
+    //     //   username: data.available ? '' : '使用者名稱已被使用'
+    //     // }));
+    //   } catch (error) {
+    //     console.error('檢查使用者名稱可用性時發生錯誤:', error);
+    //   }
+    // }
   };
 
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
-    const passwordError = validatePassword(value) ? '' : 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character';
-    setErrors((prevErrors) => ({ ...prevErrors, password: passwordError }));
+    // setErrors((prevErrors) => ({
+    //   ...prevErrors,
+    //   password: validatePassword(value) ? '' : '密碼格式不正確'
+    // }));
   };
 
   const handleEmailChange = (e) => {
     const value = e.target.value;
     setEmail(value);
-    const emailError = validateEmail(value) ? '' : 'Invalid email format';
-    setErrors((prevErrors) => ({ ...prevErrors, email: emailError }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      email: validateEmail(value) ? '' : '電子郵件格式不正確'
+    }));
   };
 
   const validateForm = () => {
     const newErrors = {};
-    if (!username) newErrors.username = 'Username is required';
-    if (!usernameAvailable) newErrors.username = 'Username is already taken';
-    if (!validateEmail(email)) newErrors.email = 'Invalid email format';
-    // if (!validatePassword(password)) newErrors.password = 'Password must be at least 8 characters long and include uppercase, lowercase, number, and special character';
+    if (!username) newErrors.username = '必須填寫使用者名稱';
+    if (!usernameAvailable) newErrors.username = '使用者名稱已被使用';
+    if (!validateEmail(email)) newErrors.email = '電子郵件格式不正確';
+    // if (!validatePassword(password)) newErrors.password = '密碼格式不正確';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -73,7 +75,7 @@ const RegisterComponent = ({ toggleAuthMode }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!validateForm()) {
-      setMessage('Please fix the errors in the form');
+      setMessage('請修正表單中的錯誤');
       return;
     }
     const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/register`, {
@@ -89,7 +91,7 @@ const RegisterComponent = ({ toggleAuthMode }) => {
       localStorage.setItem('userId', data.userId);
       navigate('/dashboard', { state: { userId: data.userId } });
     } else {
-      setMessage('Registration failed: ' + data.message);
+      setMessage('註冊失敗: ' + data.message);
     }
   };
 

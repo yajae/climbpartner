@@ -63,9 +63,13 @@ io.on('connection', async (socket) => {
         }
         if(userPath.paths){
             const path = userPath.paths.find(p => p._id.equals(new ObjectId(routeId)));
- +
-            console.log('routeName',routeName)
-            path.routeName= routeName;
+
+            if (!path.markers) {
+                path.markers = {};
+              }
+              if (!path.markers.day1) {
+                path.markers.day1 = [];
+              }
             path.markers.day1.push({ lng, lat, placeName, day, time });
             await userPath.save();
         } else {
@@ -90,9 +94,19 @@ io.on('connection', async (socket) => {
 
     socket.on('sendMessage', async (data) => {
         try {
-            const chatMessage = new ChatMessage(data);
-            await chatMessage.save();
-            io.emit('receiveMessage', data);
+            const { room, user, message, timestamp } = data;
+            
+            let roomMessages = await ChatMessage.findOne({ room });
+    
+            if (!roomMessages) {
+                roomMessages = new ChatMessage({
+                    room,
+                    messages: []
+                });
+            }
+            roomMessages.messages.push({ user, message, timestamp });
+            await roomMessages.save();
+            io.to(room).emit('receiveMessage', data);
         } catch (error) {
             console.error('Error saving chat message:', error);
         }

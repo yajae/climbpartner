@@ -47,10 +47,12 @@ const userPathSchema = new mongoose.Schema({
 const UserPathModel = conn.model('UserPath', userPathSchema);
 
 const chatMessageSchema = new mongoose.Schema({
-    user: String,
-    message: String,
-    timestamp: { type: Date, default: Date.now },
-    room: String,
+    room: { type: String, required: true },
+    messages: [{
+        user: { type: String, required: true },
+        message: { type: String, required: true },
+        timestamp: { type: Date, required: true }
+    }]
 });
 
 const ChatMessage = conn.model('ChatMessage', chatMessageSchema);

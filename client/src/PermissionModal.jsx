@@ -8,7 +8,7 @@ const PermissionModal = ({ route, onClose, onPermissionsChange }) => {
   const [shareLink, setShareLink] = useState('');
   const userId = localStorage.getItem('userId');
   const generateShareLink = (routeId) => {
-    const link = `${window.location.origin}/route/map?routeId=${routeId}`;
+    const link = `${window.location.origin}/map?routeId=${routeId}`;
     setShareLink(link);
     alert(`分享此連結給朋友: ${link}`);
   };

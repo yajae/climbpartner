@@ -47,7 +47,7 @@ const MapPage = () => {
   const [selectedEvent, setSelectedEvent] = useState({ dayIndex: 0, eventIndex: 0 });
   const [routeName, setRouteName] = useState('請輸入路線名稱');
   const [startDate, setStartDate] = useState('');
-  
+
   useEffect(() => {
  
     const checkPermission = async (userId) => {
@@ -534,10 +534,10 @@ const MapPage = () => {
   }, []);
 
 
-  const saveRouteName = async (newRouteName) => {
+  const saveRouteName = async (routeId,newRouteName) => {
     try {
       console.log('saveRouteName')
-      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/route/save-name`, {
+      const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/route/save-routeName`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -575,14 +575,14 @@ const MapPage = () => {
                         onChange={ (e) => {
                           const newRouteName = e.target.value
                           setRouteName(newRouteName);
-                          saveRouteName(newRouteName);
+                          saveRouteName(routeId,newRouteName);
                         }}
                     />
                   </div>
                
                 </div>
                 <div>
-                <div className='route-name'>日期
+                <div className='route-name'>出發日期
                 <input
                         type="date"
                         className="date-input"

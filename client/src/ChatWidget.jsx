@@ -16,7 +16,7 @@ const ChatWidget = ({ room }) => {
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
-    const storedUsername = localStorage.getItem('userId');
+    const storedUsername = localStorage.getItem('username');
     if (storedUsername) {
       setUsername(storedUsername);
     }
@@ -40,9 +40,9 @@ const ChatWidget = ({ room }) => {
     };
   }, [username, room]);
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  // useEffect(() => {
+  //   scrollToBottom();
+  // }, [messages]);
 
   useEffect(() => {
     if (searchTerm) {
@@ -74,9 +74,9 @@ const ChatWidget = ({ room }) => {
     }
   };
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
+  // const scrollToBottom = () => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  // };
 
   const handleKeyPress = (event) => {
     if (event.key === 'Enter') {
@@ -85,6 +85,9 @@ const ChatWidget = ({ room }) => {
   };
 
   const highlightText = (text, highlight) => {
+    if (!text) {
+      return text; 
+    }
     const parts = text.split(new RegExp(`(${highlight})`, 'gi'));
     return (
       <span>

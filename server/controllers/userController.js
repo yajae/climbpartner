@@ -13,11 +13,22 @@ const JWT_SECRET = process.env.JWT_SECRET;
 
 export const checkUsername = async (req, res) => {
   const { username } = req.body;
-  const existingUser = await UserModel.findOne({ username });
-  if(!existingUser){
-    res.json({ available: false })
+  try {
+    const existingUser = await User.findOne({ username });
+
+    if (!existingUser) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    if (!existingUser.username) {
+      return res.status(400).json({ message: 'Username is invalid' });
+    }
+
+    res.status(200).json({ message: 'Username is valid', user: existingUser });
+  } catch (error) {
+    console.log('errrrr',error)
+    res.status(500).json({ message: error.message });
   }
-  res.json({ available: existingUser.username });
 };
 
 export const register = async (req, res) => {

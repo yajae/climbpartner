@@ -18,7 +18,7 @@ export const getUserPaths = async (req, res) => {
             return res.status(400).send('Invalid request');
         }
         let userPaths = await UserPathModel.findOne({ userId }).populate('paths.permissions.friends');
-
+        console.log('userPaths',userPaths)
         if (!userPaths) {
            const userPaths = new UserPathModel({
                 userId: userId,
@@ -165,8 +165,12 @@ export const createNewRoute = async (req, res) => {
 export const getChatMessages = async (req, res) => {
     const { room } = req.params;
     try {
-      const messages = await ChatMessage.find({ room }).sort({ timestamp: 1 });
-      res.json(messages);
+      const roomMessages = await ChatMessage.findOne({ room });
+  
+      if (roomMessages) {
+        console.log('history message', roomMessages.messages);
+        res.json(roomMessages.messages);
+      } 
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -188,18 +192,18 @@ export const getChatMessages = async (req, res) => {
   };
   export const saveRouteName = async (req, res) => {
     const { routeId, newRouteName } = req.body;
-    console.log('try to save route name')
+
     try {
-      const userPath = await UserPathModel.findOne({ "paths.routeId": routeId });
+      const userPath = await UserPathModel.findOne({ "paths._id": new ObjectId(routeId) });
       if (!userPath) {
         return res.status(404).json({ message: 'Route not found' });
       }
-  
-      const route = userPath.paths.find(path => p => p._id.equals(new ObjectId(routeId)));
+      
+      const route = userPath.paths.find( p => p._id.equals(new ObjectId(routeId)));
       if (!route) {
         return res.status(404).json({ message: 'Route not found' });
       }
-  
+     
       route.routeName = newRouteName;
       await userPath.save();
   
