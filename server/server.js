@@ -19,14 +19,14 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 app.use(express.json());
 app.use(cookieParser());
 const corsOptions = {
-    origin: ['http://localhost:5173','https://frontend.yvonnei.com'],
+    origin: 'https://frontend.yvonnei.com',
     credentials: true
 };
 app.use(cors(corsOptions));
 
 const io = new Server(server, {
     cors: {
-      origin: ['http://localhost:5173','https://frontend.yvonnei.com'],
+      origin: 'https://frontend.yvonnei.com',
       methods: ['GET', 'POST'],
       credentials: true
     }
