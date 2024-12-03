@@ -4,7 +4,7 @@ import RegisterComponent from './RegisterComponent';
 import './AuthPage.css';
 
 const AuthPage = ({onLogin}) => {
-  const [isLogin, setIsLogin] = useState(false);
+  const [isLogin, setIsLogin] = useState(true);
 
   const toggleAuthMode = () => {
     setIsLogin(!isLogin);

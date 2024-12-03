@@ -148,7 +148,7 @@ const MapPage = () => {
               popup.remove();
               setSchedule((prevSchedule) => {
                 console.log('prev',prevSchedule)
-                if(prevSchedule[0].time===''){
+                if(prevSchedule[0]===''){
                   const newSchedule=[{dayNumber: 1, date: '2024-07-01', time: '9:00', events: [{time: '9:00', name: data.features[0].place_name}]}]
                   return newSchedule;
                 }
@@ -197,9 +197,17 @@ const MapPage = () => {
       socketRef.current.emit('join-room', room);
       
       socketRef.current.on('new-marker', (newMarker) => {
-        console.log('create a new marker')
-
+        console.log('Received new-marker event:', newMarker);
+        const marker = new mapboxgl.Marker()
+          .setLngLat([newMarker.lng, newMarker.lat])
+          .addTo(map);
+        setMarkers((prevMarkers) => {
+          const newMarkers = [...prevMarkers, marker];
+          updatePath(newMarkers);
+          return newMarkers;
+        });
       });
+
 
       socketRef.current.on('delete-marker', (lngLat) => {
         setMarkers((prevMarkers) => {
@@ -482,7 +490,6 @@ const MapPage = () => {
     setSchedule(newSchedule);
   };
 
-
   const addNextDay = () => {
     const newDayCount = dayCount + 1;
     setDayCount(newDayCount);
@@ -500,7 +507,6 @@ const MapPage = () => {
 
   useEffect(() => {
     console.log('Current schedule:', schedule);
-
   }, [schedule]);
 
   
@@ -533,7 +539,6 @@ const MapPage = () => {
     setCurrentTime(`${hours}:${minutes}`);
   }, []);
 
-
   const saveRouteName = async (routeId,newRouteName) => {
     try {
       console.log('saveRouteName')
@@ -545,18 +550,15 @@ const MapPage = () => {
         credentials: 'include',
         body: JSON.stringify({ routeId, newRouteName })
       });
-
       const data = await response.json();
       if (!response.ok) {
         throw new Error(data.message || 'Failed to save route name');
       }
-
       console.log('Route name saved successfully');
     } catch (error) {
       console.error('Error saving route name:', error);
     }
   };
-
   return (
     <div className="map-page">
       <div id='tab-box'>
@@ -579,7 +581,6 @@ const MapPage = () => {
                         }}
                     />
                   </div>
-               
                 </div>
                 <div>
                 <div className='route-name'>出發日期
@@ -590,9 +591,7 @@ const MapPage = () => {
                         onChange={(e) => setStartDate(e.target.value)}
                       />
                 </div>
-            
                 </div>
-                
               </div>
               {schedule.map((day, index) => (
               
@@ -611,23 +610,10 @@ const MapPage = () => {
                         value={currentTime}
                         onChange={(e) => updateTime(dayIndex, 0, e.target.value)}
                       />
-                      </div>
-                 
-              
-                     
+                      </div>  
                     </div>
                   )}
                   <div className="event" id='1-day'>
-             
-                    {/* <div className="time-container" id='1-day'>
-                      <div className="time">{day.events[0].time}</div>
-                    </div>
-                    <input
-                      type="radio"
-                      className={`event${day.dayNumber}`}
-                      checked={selectedEvent.dayIndex === 0 && selectedEvent.eventIndex === 0}
-                      onChange={() => handleEventSelection(0, 0)}
-                    /> */}
                     <div className="event-details">
                       <div className="event-container">
                         <span className="event-number">{index+1}</span>
@@ -638,20 +624,15 @@ const MapPage = () => {
                           <img src={deleteIcon} alt="Delete Icon"/>
                         </button>
                       </div>
-                      
                     </div>
-                 
                   </div>
                   {index === schedule.length - 1 && (
                     <button className="add-day" onClick={addNextDay}>
                       新增下一天
                     </button>
                   )}
-
                 </div>
               ))}
-            
-      
             </div>
           )}
           {activeTab === 1 && (

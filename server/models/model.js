@@ -57,4 +57,33 @@ const chatMessageSchema = new mongoose.Schema({
 
 const ChatMessage = conn.model('ChatMessage', chatMessageSchema);
 
-export { UserModel, UserPathModel, ChatMessage };
+const articleSchema = new mongoose.Schema({
+    title: {
+        type: String,
+        required: true, // 确保 title 为必填字段
+        unique: true, // 确保 title 唯一
+        trim: true // 去除前后空格
+    },
+    content: {
+        type: String,
+        required: true,
+    },
+    author: {
+        type: String,
+        required: true, 
+        trim: true 
+    },
+    published_date: {
+        type: Date,
+        default: Date.now 
+    },
+    tags: {
+        type: [String],
+        default: [] 
+    }
+});
+
+// 创建模型
+const Article = mongoose.model('Article', articleSchema);
+
+export { UserModel, UserPathModel, ChatMessage, Article };

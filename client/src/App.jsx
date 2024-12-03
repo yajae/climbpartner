@@ -60,16 +60,24 @@ function App() {
           <nav className="nav-container">
             <ul className="nav-list">
               <li>
-                 {username && (
-            <div className="username-container">
-              <span>歡迎, {username}</span>
-              <Link to="/">  <button onClick={handleLogout}>登出</button></Link>
-            </div>
-          )}
+                {isAuthenticated ? (
+                  <div className="username-container">
+                    <span>歡迎, {username}</span>
+                    <Link to="/">
+                      <button onClick={handleLogout}>登出</button>
+                    </Link>
+                  </div>
+                ) : (
+                  <Link to="/auth">
+                    <button>登入</button>
+                  </Link>
+                )}
               </li>
-              <li>
-                <Link to="/dashboard">路線紀錄</Link>
-              </li>
+              {isAuthenticated && (
+                <li>
+                  <Link to="/dashboard">路線紀錄</Link>
+                </li>
+              )}
             </ul>
           </nav>
     
@@ -102,6 +110,7 @@ function App() {
             />
           </Routes>
         </main>
+        
         <footer className="footer">
           <p>© 2024 Mountain Climbing Partner. All rights reserved.</p>
         </footer>

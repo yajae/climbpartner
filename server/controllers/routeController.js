@@ -25,10 +25,11 @@ export const getUserPaths = async (req, res) => {
                 paths: []
             });
             const newpath = await userPaths.save();
-            res.send(newpath);
+            console.log(" in newpath",newpath)
+            return res.json(null);
         }
-        
-        res.json(userPaths.paths);
+        console.log(" out userPaths.paths", userPaths.paths)
+        return res.json(userPaths.paths);
     } catch (error) {
         console.error('Error fetching user paths:', error);
         res.status(500).json({ message: 'Server error' });
@@ -176,18 +177,35 @@ export const getChatMessages = async (req, res) => {
     }
   };
   export const getWeatherMessage = async (req, res) => {
+  
     try {
-      
-      const response = await axios.get('https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001', {
-        params: {
-          Authorization: apiKey,
-          format: 'JSON'
-        }
-      });
+       
+        const response = await axios.get('https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001', {
+            params: {
+            Authorization:'CWA-257E772C-ABCA-4B7C-BF15-046C053807EB'
+            }
+        });
+  
       res.send(response.data);
     } catch (error) {
-        console.error('Error fetching data:', error.message);
-        res.status(500).send(error.toString());
+             console.error('Error fetching data:', error.message);
+        
+        // 打印更详细的错误信息
+        if (error.response) {
+            console.error('Response data:', error.response.data);
+            console.error('Response status:', error.response.status);
+            // 可以根据需要返回不同的状态码和消息
+            return res.status(error.response.status).json({
+                message: 'Error fetching weather data',
+                error: error.response.data
+            });
+        } else {
+            // 如果没有响应，则返回一般的错误信息
+            res.status(500).json({
+                message: 'Internal Server Error',
+                error: error.message
+            });
+        }
     }
   };
   export const saveRouteName = async (req, res) => {

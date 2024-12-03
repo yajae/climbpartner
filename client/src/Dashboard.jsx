@@ -3,11 +3,21 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import './Dashboard.css';  
 import axios from 'axios';
 import PermissionModal from './PermissionModal'; 
-
+import Loading from './loading';
 
 const Dashboard = () => {
   const [username, setUsername] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+ 
+  const [selectedRoute, setSelectedRoute] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
+  const userIdnumber =  localStorage.getItem('userId');
+  const [userId, setUserId] = useState(userIdnumber);
+  const id = localStorage.getItem('userId');
+  const [routes, setRoutes] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -22,22 +32,16 @@ const Dashboard = () => {
           console.log('auth token right')
           setUsername(response.data.username);
           setIsAuthenticated(true);
-        } else {
-          setIsAuthenticated(false);
-        }
+        }      
+         setLoading(false); 
       }).catch(() => {
         setIsAuthenticated(false);
+        setLoading(false); 
       });
+    } else {
+      setLoading(false); 
     }
   }, []);
-  const [selectedRoute, setSelectedRoute] = useState(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const userIdnumber =  localStorage.getItem('userId');
-  const [userId, setUserId] = useState(userIdnumber);
-  const id = localStorage.getItem('userId');
-  const [routes, setRoutes] = useState([]);
   useEffect(() => {
     console.log('localStorage.getItem', localStorage.getItem('userId'));
     setUserId(id);
@@ -50,6 +54,7 @@ const Dashboard = () => {
       } catch (error) {
         console.error('Error fetching user routes', error);
       }
+      setLoading(false);
     };
 
     fetchRoutes();
@@ -108,12 +113,17 @@ const Dashboard = () => {
     }
   };
 
+  
+  if (loading) {
+    return <Loading />;
+  }
+
   return (
     <div className="dashboard-container">
       <h1>我的路線</h1>
       
-      {routes.length === 0 ? (
-        <p>No routes available. Add a new route to get started.</p>
+      {(!routes || routes.length === 0) ? (
+        <p>目前沒有路線，請新增路線。</p>
       ) : (
         <ul>
           {routes.map((route, index) => (
@@ -124,7 +134,7 @@ const Dashboard = () => {
                 <div>權限:  {getPermissionLabel(route.permissions.type)}</div>
               </div>
               <div className="buttons">
-                <button onClick={() => handleUpdateRoute(route)}>更新路線</button>
+                <button onClick={() => handleUpdateRoute(route)}>路線細節</button>
                 <button onClick={() => handleOpenModal(route)}>設定權限</button>
               </div>
             </li>

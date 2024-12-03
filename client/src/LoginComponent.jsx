@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const LoginComponent = ({ onLogin, toggleAuthMode }) => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState('user51');
+  const [password, setPassword] = useState('12345678');
   const [message, setMessage] = useState('');
   const navigate = useNavigate();
 
